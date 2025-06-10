@@ -132,7 +132,7 @@ class BridgeBid:
         # Przypadek 3: Jeśli nowe zgłoszenie to REDOUBLE (rekontra)
         if self.special == SpecialBid.REDOUBLE:
             # REDOUBLE jest legalne, gdy poprzednie zgłoszenie było DOUBLE i pochodziło od przeciwnika
-            if previous_bid.special == SpecialBid.DOUBLE and contract_direction.partner() is new_bid_direction:
+            if previous_bid.special == SpecialBid.DOUBLE and (contract_direction.partner() is new_bid_direction) or (contract_direction is new_bid_direction):
                 return True
             return False
 

@@ -40,7 +40,7 @@ def simulate_game():
         elif new_bid.verify_legality(previous_bid=curr_bid, new_bid_direction=current_player.direction,
                                      contract_direction=contract.declarer):
             curr_bid = new_bid
-            contract.update_contract_from_bridge_bid(curr_bid, current_player.direction)
+            contract.update_from_bridge_bid(curr_bid, current_player.direction)
             pass_count = 0
         else:
             print('Invalid bid')

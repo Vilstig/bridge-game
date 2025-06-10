@@ -72,11 +72,6 @@ class Contract:
 
 
 class BridgeContract:
-    """
-    The final contract of a played board. Includes level (6 in 6NT), Bidding Suit (None if passed out), and the number of
-    times the contract was doubled
-    """
-
     level: int
     suit: Optional[BiddingSuit]
     doubled: int
@@ -92,7 +87,7 @@ class BridgeContract:
     def empty_contract() -> BridgeContract:
         return BridgeContract(0, None, 0, None)
 
-    def update_contract_from_bridge_bid(self, bid: 'BridgeBid', declarer: Direction) -> None:
+    def update_from_bridge_bid(self, bid: 'BridgeBid', declarer: Direction) -> None:
         if bid.special and bid.special != SpecialBid.PASS:
             self.doubled += 1
         elif not bid.special:
