@@ -3,9 +3,9 @@ from random import shuffle
 from typing import List
 
 import core
-from core import Card, BridgeContract, calculate_score
+from core import Card, BridgeContract
 from core.deal_enums import SpecialBid, Direction, Suit
-from core.play_utils import validate_card_usage, evaluate_trick_winner
+from core.play_utils import validate_card_usage, evaluate_trick_winner, Score
 
 
 class Player:
@@ -62,6 +62,8 @@ class Game:
         self._init_players()
         self.contract = core.BridgeContract.empty_contract()
         self.contract_log = []
+        self.score = Score()
+        self.game_over = False
 
     def _init_players(self):
         all_cards = [core.Card(suit, rank) for suit in core.Suit for rank in core.Rank]
@@ -74,10 +76,24 @@ class Game:
 
         self.players = [player1, player2, player3, player4]
 
+    def game_loop(self):
+        print("Welcome to bridge game")
+        print("Let the suffering begin...\n\n")
+
+        while not self.game_over:
+            self.auction()
+            self.play()
+            print("\n")
+
+        print("Game over!")
+        print(f"Final scores:\n{self.score}")
+        print("Thanks for playing")
+
     def auction(self):
         pass_count = 0
         curr_bid = None
         curr_index = 0
+        self.contract = core.BridgeContract.empty_contract()
         self.contract_log = []
 
         while True:
@@ -174,7 +190,8 @@ class Game:
         print("\n=== Play Phase Finished ===")
         print(f"Final Scores - NS: {tricks_ns}, WS: {tricks_ew}")
         print(f"Contract: {self.contract}")
-        print(f"Calculated Scores - NS: {calculate_score(self.contract.level, self.contract.suit, self.contract.doubled, tricks_ns, False)}")
+        self.game_over = self.score.update_game_score(self.contract, tricks_ns, tricks_ew)
+        print(f"Scores:\n{self.score}")
 
 def select_player(direction, players):
     for player in players:
@@ -256,5 +273,4 @@ def determine_game_starting_player(contract_log: List[BridgeContract]):
 
 
 game = Game()
-game.auction()
-game.play()
+game.game_loop()

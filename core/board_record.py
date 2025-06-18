@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 from core import BridgeBid
 from core.deal import Card, Deal
 from core.deal_enums import BiddingSuit, Direction, SpecialBid
-from core.play_utils import calculate_score
 
 
 @dataclass(frozen=True)
@@ -129,6 +128,7 @@ class BoardRecord:
     board_name: Optional[str] = None
 
     def __post_init__(self, declarer_vulnerable: bool):
+        from core.play_utils import calculate_score
         if self.score is None and declarer_vulnerable is None:
             raise ValueError("score and declarer_vulnerable may not both be None")
         if self.score is None:
