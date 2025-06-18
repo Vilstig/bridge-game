@@ -1,8 +1,32 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict, List, Tuple
 
-from core.deal import Card
-from core.deal_enums import BiddingSuit, Suit
+from core.deal import Card, PlayerHand
+from core.deal_enums import BiddingSuit, Suit, Direction
+
+
+def validate_card_usage(card: Card, trick: List[Tuple[Direction, Card]], player_cards: PlayerHand) -> bool:
+
+    if not trick:
+        return True
+    else:
+        first_card_suit = trick[0][1].suit
+        if player_cards.contains_suit(first_card_suit) and card.suit != first_card_suit:
+            return False
+        return True
+
+def evaluate_trick_winner(trick: List[Tuple[Direction, Card]], trump_suit: BiddingSuit) -> Card:
+    max_score = 0
+    best_card = None
+
+    for direction, card in trick:
+        score = _evaluate_card(trump_suit, trick[0][1].suit, card)
+        if score > max_score:
+            best_card = card
+            max_score = score
+
+    return best_card
+
 
 
 def _evaluate_card(trump_suit: BiddingSuit, suit_led: Suit, card: Card) -> int:

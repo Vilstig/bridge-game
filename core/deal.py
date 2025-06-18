@@ -78,6 +78,12 @@ class PlayerHand:
         }
         return PlayerHand(suits)
 
+    def contains_suit(self, suit: Suit) -> bool:
+        for card in self.cards:
+            if card.suit == suit:
+                return True
+        return False
+
     def __repr__(self):
         suit_arrays = [[], [], [], []]
         for card in self.cards:
