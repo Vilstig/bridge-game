@@ -1,6 +1,9 @@
+from copy import copy
 from random import shuffle
+from typing import List
+
 import core
-from core import Card
+from core import Card, BridgeContract, calculate_score
 from core.deal_enums import SpecialBid, Direction, Suit
 from core.play_utils import validate_card_usage, evaluate_trick_winner
 
@@ -11,12 +14,54 @@ class Player:
         self.hand = core.PlayerHand.from_cards(cards)
         self.direction = core.Direction.from_str(direction)
 
+    def play_card(self) -> Card:
+        if not self.hand.cards:
+            raise ValueError("Player has no cards left in hand.")
+
+        card_str = input('Play a card: ').strip()
+
+        try:
+            played_card = Card.from_str(card_str)
+        except Exception:
+            raise f"Invalid card input: '{card_str}'. Please try again."
+        else:
+            if played_card not in self.hand.cards:
+                raise f"The card '{played_card}' is not in your hand."
+            else:
+                self.hand.cards.remove(played_card)
+                return played_card
+
+
+    def play_random_card(self, led_suit: Suit) -> Card:
+        # Sprawdzanie, czy gracz ma karty w ręce
+        if not self.hand.cards:
+            raise ValueError("Player has no cards left in hand.")
+
+        viable_cards = []
+
+        # Wybieranie kart w kolorze wywołanej karty
+        if led_suit:
+            for card in self.hand.cards:
+                if card.suit == led_suit:
+                    viable_cards.append(card)
+
+        # Jeśli brak kart w kolorze wywołanej karty, dodaj wszystkie karty do puli
+        if len(viable_cards) == 0:
+            viable_cards.extend(self.hand.cards)
+
+        # Ostateczna weryfikacja, czy można coś zagrać
+        if not viable_cards:
+            raise ValueError('No viable cards to choose from')
+
+        shuffle(viable_cards)
+        return viable_cards[0]
+
 class Game:
     def __init__(self):
         self.players = []
         self._init_players()
         self.contract = core.BridgeContract.empty_contract()
-
+        self.contract_log = []
 
     def _init_players(self):
         all_cards = [core.Card(suit, rank) for suit in core.Suit for rank in core.Rank]
@@ -33,6 +78,7 @@ class Game:
         pass_count = 0
         curr_bid = None
         curr_index = 0
+        self.contract_log = []
 
         while True:
             current_player = self.players[curr_index]
@@ -49,6 +95,7 @@ class Game:
                                          contract_direction=self.contract.declarer):
                 curr_bid = new_bid
                 self.contract.update_from_bridge_bid(curr_bid, current_player.direction)
+                self.contract_log.append(copy(self.contract))
                 pass_count = 0
             else:
                 print('Invalid bid')
@@ -65,24 +112,25 @@ class Game:
 
 
     def play(self):
-        tricks_NS = 0
-        tricks_WS = 0
+        tricks_ns = 0
+        tricks_ew = 0
         trump_suit = self.contract.suit
-        starting_player_direction = self.contract.declarer.next()
-        visible_hand_direction = self.contract.declarer.partner()
+        starting_player_direction = determine_game_starting_player(self.contract_log)
+        visible_hand_direction = None
+        trick_starting_player = starting_player_direction
 
         print("\n=== Play Phase Begins ===")
         print(f"Contract: {self.contract}")
         print(f"Declarer: {self.contract.declarer}, Trump Suit: {trump_suit}\n")
 
-        while tricks_NS + tricks_WS < 13:
+        while tricks_ns + tricks_ew < 13:
             trick = []
 
             print("\n--- New Trick ---")
-            print(f"Tricks NS: {tricks_NS}, Tricks WS: {tricks_WS}")
+            print(f"Tricks NS: {tricks_ns}, Tricks WS: {tricks_ew}")
             
             while len(trick) < 4:
-                current_player = select_player(starting_player_direction, self.players)
+                current_player = select_player(trick_starting_player, self.players)
                 
                 print(f"\nPlayer {current_player.name} ({current_player.direction})'s turn.")
                 if trick:
@@ -96,24 +144,18 @@ class Game:
                 played_card = None
 
                 while not valid:
-                    card_str = input('Play a card: ').strip()
-
-                    try:
-                        played_card = Card.from_str(card_str)
-                    except Exception:
-                        print(f"Invalid card input: '{card_str}'. Please try again.")
-                    else:
-                        if played_card not in current_player.hand.cards:
-                            print(f"The card '{played_card}' is not in your hand.")
-                        elif not validate_card_usage(played_card, trick, current_player.hand):
+                    played_card = current_player.play_random_card(trick[0][1].suit if trick else None) #Change this to play_card() to be able to play manually
+                    if not validate_card_usage(played_card, trick, current_player.hand):
                             print(f"The card '{played_card}' cannot legally be played.")
-                        else:
-                            valid = True  # Wszystko OK, karta poprawna
-                            current_player.hand.cards.remove(played_card)
-                            print(f"Card played: {played_card}")
+                    else:
+                        valid = True  # Wszystko OK, karta poprawna
+
 
                 trick.append((current_player.direction, played_card))
-                starting_player_direction = starting_player_direction.next()
+                trick_starting_player = trick_starting_player.next()
+
+                if tricks_ns + tricks_ew == 0 and len(trick) == 1:  #show playing player's partner's cards after first played card
+                    visible_hand_direction = self.contract.declarer.partner()
 
             print("\nTrick completed.")
             print("Trick summary:")
@@ -123,14 +165,16 @@ class Game:
             winner = evaluate_trick_winner(trick, trump_suit)
             print(f"Trick winner: {winner}")
 
-            starting_player_direction = select_player_by_winner(trick, winner)
-            if starting_player_direction in [Direction.NORTH, Direction.SOUTH]:
-                tricks_NS += 1
+            trick_starting_player = select_player_by_winner(trick, winner)
+            if trick_starting_player in [Direction.NORTH, Direction.SOUTH]:
+                tricks_ns += 1
             else:
-                tricks_WS += 1
+                tricks_ew += 1
 
         print("\n=== Play Phase Finished ===")
-        print(f"Final Scores - NS: {tricks_NS}, WS: {tricks_WS}")
+        print(f"Final Scores - NS: {tricks_ns}, WS: {tricks_ew}")
+        print(f"Contract: {self.contract}")
+        print(f"Calculated Scores - NS: {calculate_score(self.contract.level, self.contract.suit, self.contract.doubled, tricks_ns, False)}")
 
 def select_player(direction, players):
     for player in players:
@@ -199,7 +243,15 @@ def print_table(players, visible_hand_direction, current_direction):
         print(" " * 30 + f"{suit} {cards}")
     print()
 
-
+def determine_game_starting_player(contract_log: List[BridgeContract]):
+    final_contract = contract_log[-1]
+    for contract in contract_log:
+        if contract.suit == final_contract.suit:
+            if contract.declarer == final_contract.declarer.partner():
+                return contract.declarer.next()
+            elif contract.declarer == final_contract.declarer:
+                return contract.declarer.next()
+    return final_contract.declarer.next()
 
 
 

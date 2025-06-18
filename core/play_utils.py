@@ -79,8 +79,6 @@ def _calculate_bonus(
     # Game / part-score
     if contracted_trick_score >= 100:
         score += 500 if vulnerable else 200
-    else:
-        score += 50
 
     # Overtricks
     if doubled == 0:
@@ -141,6 +139,7 @@ def calculate_score(level: int, suit: Optional[BiddingSuit], doubled: int, trick
         bonus = _calculate_bonus(
             level, suit, doubled, vulnerable, first_trick_score + subsequent_tricks_score, scoring_tricks - level
         )
+        print(f'First trick: {first_trick_score}, subsequent tricks: {subsequent_tricks_score}, bonus: {bonus}')
         return first_trick_score + subsequent_tricks_score + bonus
     else:
         undertricks = level + 6 - tricks

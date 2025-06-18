@@ -70,7 +70,6 @@ class Contract:
         return contract_str
 
 
-
 class BridgeContract:
     level: int
     suit: Optional[BiddingSuit]
@@ -96,7 +95,7 @@ class BridgeContract:
             self.doubled = 0
             self.declarer = declarer
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.level == 0:
             return "PASS"
         contract_str = str(self.level) + self.suit.abbreviation()
@@ -104,6 +103,7 @@ class BridgeContract:
             contract_str += "X"
         contract_str += f', Declarer: {self.declarer.abbreviation()}'
         return contract_str
+
 
 @dataclass(frozen=True)
 class BoardRecord:
