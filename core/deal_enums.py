@@ -153,3 +153,13 @@ class Rank(Enum):
 
     def abbreviation(self) -> str:
         return self.value[1]
+
+class GameStatus(Enum):
+    DEAL_CARDS = 'Deal cards'
+    AUCTION = 'Auction'
+    PLAY = 'Play'
+    DISPLAY_SCORE = 'Display Score'
+    GAME_OVER = 'Game over'
+
+    def __str__(self) -> str:
+        return self.name

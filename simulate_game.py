@@ -1,6 +1,6 @@
 from copy import copy
 from random import shuffle
-from typing import List
+from typing import List, Optional
 
 import core
 from core import Card, BridgeContract
@@ -9,10 +9,11 @@ from core.play_utils import validate_card_usage, evaluate_trick_winner, Score
 
 
 class Player:
-    def __init__(self, name: str, cards, direction: str) -> None:
+    def __init__(self, name: str, cards: Optional[List[Card]], direction: str) -> None:
         self.name = name
-        self.hand = core.PlayerHand.from_cards(cards)
         self.direction = core.Direction.from_str(direction)
+        if cards:
+            self.hand = core.PlayerHand.from_cards(cards)
 
     def play_card(self) -> Card:
         if not self.hand.cards:
@@ -56,6 +57,16 @@ class Player:
         shuffle(viable_cards)
         return viable_cards[0]
 
+
+def _deal_cards(players: List[Player]) -> None:
+    all_cards = [core.Card(suit, rank) for suit in core.Suit for rank in core.Rank]
+    shuffle(all_cards)
+    index = 0
+    for player in players:
+        player.hand = core.PlayerHand.from_cards(all_cards[index:index+13])
+        index += 13
+
+
 class Game:
     def __init__(self):
         self.players = []
@@ -66,13 +77,10 @@ class Game:
         self.game_over = False
 
     def _init_players(self):
-        all_cards = [core.Card(suit, rank) for suit in core.Suit for rank in core.Rank]
-        shuffle(all_cards)
-
-        player1 = Player('Filip', all_cards[:13], 'N')
-        player2 = Player('Dorota', all_cards[13:26], 'E')
-        player3 = Player('Tomek', all_cards[26:39], 'S')
-        player4 = Player('Adam', all_cards[39:], 'W')
+        player1 = Player('Filip', None, 'N')
+        player2 = Player('Dorota', None, 'E')
+        player3 = Player('Tomek', None, 'S')
+        player4 = Player('Adam', None, 'W')
 
         self.players = [player1, player2, player3, player4]
 
@@ -81,6 +89,7 @@ class Game:
         print("Let the suffering begin...\n\n")
 
         while not self.game_over:
+            _deal_cards(self.players)
             self.auction()
             self.play()
             print("\n")

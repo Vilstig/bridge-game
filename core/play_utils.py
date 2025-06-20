@@ -7,7 +7,6 @@ from core.deal_enums import BiddingSuit, Suit, Direction
 
 
 def validate_card_usage(card: Card, trick: List[Tuple[Direction, Card]], player_cards: PlayerHand) -> bool:
-
     if not trick:
         return True
     else:
@@ -126,7 +125,7 @@ def calculate_score(level: int, suit: Optional[BiddingSuit], doubled: int, trick
     :param level: contract level (4 in 4S)
     :param suit: contract bidding suit
     :param doubled: 0=undoubled, 1=doubled, 2=redoubled
-    :param tricks: tricks taken by declarer
+    :param tricks: tricks_log taken by declarer
     :param vulnerable: vulnerability of declarer
     :return: declarer's score
     """
@@ -142,7 +141,7 @@ def calculate_score(level: int, suit: Optional[BiddingSuit], doubled: int, trick
         bonus = _calculate_bonus(
             level, suit, doubled, vulnerable, first_trick_score + subsequent_tricks_score, scoring_tricks - level
         )
-        print(f'First trick: {first_trick_score}, subsequent tricks: {subsequent_tricks_score}, bonus: {bonus}')
+        print(f'First trick: {first_trick_score}, subsequent tricks_log: {subsequent_tricks_score}, bonus: {bonus}')
         return first_trick_score + subsequent_tricks_score + bonus
     else:
         undertricks = level + 6 - tricks
@@ -191,8 +190,8 @@ class TeamScore:
         """
         Updates the game score based on the outcome of a bridge bidding and play scenario.
 
-        This method evaluates the scoring of tricks won or lost in a bridge game round given the level of the
-        contract, the suit being bid, any doubling penalties, and the number of tricks taken. It updates
+        This method evaluates the scoring of tricks_log won or lost in a bridge game round given the level of the
+        contract, the suit being bid, any doubling penalties, and the number of tricks_log taken. It updates
         the player's game points and penalty points while also determining whether the game or rubber has
         been finished.
 
@@ -200,7 +199,7 @@ class TeamScore:
         level (int): The level of the bid (1-7).
         suit (Optional[BiddingSuit]): The suit bid in the current game (e.g., Hearts, Spades, No Trump, etc.).
         doubled (int): An indication of whether the bid was undoubled (0), doubled (1), or redoubled (2).
-        tricks (int): The total number of tricks taken by the team in this round.
+        tricks_log (int): The total number of tricks_log taken by the team in this round.
         game (str): The identifier for the current game or hand being scored.
 
         Returns:

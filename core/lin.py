@@ -109,8 +109,8 @@ def _parse_tricks(
     play_record: List[Card],
 ) -> int:
     """
-    Use the play record and claim record to determine how many tricks were taken by declarer
-    :return: the number of tricks taken by declarer
+    Use the play record and claim record to determine how many tricks_log were taken by declarer
+    :return: the number of tricks_log taken by declarer
     """
     if contract == "PASS":
         return 0
@@ -287,7 +287,7 @@ def parse_handviewer_url(handviewer_url: str) -> DealRecord:
     https://www.bridgebase.com/tools/handviewer.html?n=SKHAKJ82DAQ96CK52&e=SAQ972H97DJ10CQJ103&s=S8643HQ10DK75CA976&w
     =SJ105H6543D8432C84&d=S&nn=Jeff_Meckstroth&en=Christian_Mari&sn=Eric_Rodwell&wn=Alain_Levy&b=7&v=b&a
     =PP1C1S2SP3HP3SP4DP4HPPP&p=CQC6C8CKH2H7HQH3HTH4H8H9D5D4DADJHAS2S3H5HKS7S4H6D6DTDKD2D7D3DQC3D9S9S6D8HJSQ
-    :return: parsed DealRecord. Since claims are not included in these urls the score/tricks fields are not set
+    :return: parsed DealRecord. Since claims are not included in these urls the score/tricks_log fields are not set
     """
     handiewer_data = handviewer_url.replace("https://www.bridgebase.com/tools/handviewer.html?", "")
     handviewer_dict = dict(parse.parse_qsl(handiewer_data))

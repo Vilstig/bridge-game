@@ -173,7 +173,7 @@ def _sort_play_record(trick_records: List[List[str]], contract: str) -> List[Car
 
     The H6 was led by N and followed by the HK by E, HQ by S, and H5 by W, which meant that E won the trick. On the
     second trick, E led the C4 followed by the C6, CK, and CA. In order to create the true ordering of the first two
-    tricks, we need to evaluate who won the first trick and start appending from there, wrapping around when we reach
+    tricks_log, we need to evaluate who won the first trick and start appending from there, wrapping around when we reach
     the 4th column.
 
     :param trick_records: List of List of cards played to each trick. Order is consistent by direction, not necessarily
@@ -225,7 +225,7 @@ def _parse_board_record(record_dict: Dict, deal: Deal) -> BoardRecord:
 
     result_str = record_dict.get("Result")
     if not result_str:
-        message = f"Missing tricks result: {result_str}"
+        message = f"Missing tricks_log result: {result_str}"
         logging.warning(message)
         raise ValueError(message)
 

@@ -10,7 +10,7 @@ from core.deal_utils import from_acbl_dict
 
 class DoubleDummyScore:
     """
-    Represents the double-dummy number of tricks available for declaring each suit from each direction
+    Represents the double-dummy number of tricks_log available for declaring each suit from each direction
     """
 
     suit_identifiers = {
@@ -58,7 +58,7 @@ class DoubleDummyScore:
         scores = defaultdict(dict)
         suit_score_strings = acbl_str.split()
         for suit_score_str in suit_score_strings:
-            # If one direction can make 7 tricks in a given suit but their partner cannot, then the lower score will
+            # If one direction can make 7 tricks_log in a given suit but their partner cannot, then the lower score will
             # be represented as a '-'. In these cases a full trick score will be given later in the string, so skip the
             # current score
             if "-" in suit_score_str:
