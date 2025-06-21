@@ -17,26 +17,26 @@ class Cli:
             self.choose_action()
 
     def print_header(self):
-        rubber_status = self.rubber.game_status
+        rubber_status = self.rubber.get_game_status()
         if self.current_status != rubber_status:
             if rubber_status == GameStatus.DEAL_CARDS:
                 print("Cards are being dealt...")
             elif rubber_status == GameStatus.AUCTION:
                 print("\n=== Auction Phase Begins ===")
-                print(f"{self.rubber.game_starter_direction} starts auction")
+                print(f"{self.rubber.get_game_starter_direction()} starts auction")
             elif rubber_status == GameStatus.PLAY:
                 print("\n=== Auction Phase Finished ===")
-                print(f"Contract: {self.rubber.auction.contract}")
-                print(f"Declarer: {self.rubber.auction.contract.declarer}, Trump Suit: {self.rubber.play.trump_suit}\n")
+                print(f"Contract: {self.rubber.get_contract()}")
+                print(f"Declarer: {self.rubber.get_contract().declarer}, Trump Suit: {self.rubber.play.trump_suit}\n")
                 print("\n=== Play Phase Begins ===")
             elif rubber_status == GameStatus.DISPLAY_SCORE:
                 print("\n=== Play Phase Finished ===")
-                print(f"Final Scores - NS: {self.rubber.play.tricks_ns}, WS: {self.rubber.play.tricks_ew}")
-                print(f"Contract: {self.rubber.auction.contract}")
-                print(f"Scores:\n{self.rubber.score}")
+                print(f"Final Scores - NS: {self.rubber.get_tricks_count()[0]}, WS: {self.rubber.get_tricks_count()[1]}")
+                print(f"Contract: {self.rubber.get_contract()}")
+                print(f"Scores:\n{self.rubber.get_current_scores()}")
             elif rubber_status == GameStatus.GAME_OVER:
                 print("\nGame over!")
-                print(f"Final scores:\n{self.rubber.score}")
+                print(f"Final scores:\n{self.rubber.get_current_scores()}")
                 print("Thanks for playing")
 
             self.current_status = rubber_status
@@ -46,33 +46,33 @@ class Cli:
             self.rubber.deal_cards()
 
         elif self.rubber.game_status == GameStatus.AUCTION:
-            current_player = get_player_by_direction(self.rubber.players, self.rubber.playing_direction)
+            current_player = get_player_by_direction(self.rubber.players, self.rubber.get_playing_direction())
             print(f"\nPlayer: {current_player.name} bids")
-            print(f"Current contract: {self.rubber.auction.contract}")
+            print(f"Current contract: {self.rubber.get_contract()}")
             print(f"Player's hand: {current_player.hand}")
             bid = input(f'Make a bid: ').strip()
             self.rubber.bid(bid)
 
         elif self.rubber.game_status == GameStatus.PLAY:
-            curr_trick = self.rubber.play.trick
+            curr_trick = self.rubber.get_current_trick()
             if not curr_trick:
                 print("\n--- New Trick ---")
-                print(f"Tricks NS: {self.rubber.play.tricks_ns}, Tricks WS: {self.rubber.play.tricks_ew}")
+                print(f"Tricks NS: {self.rubber.get_tricks_count()[0]}, Tricks WS: {self.rubber.get_tricks_count()[1]}")
 
-            current_player = get_player_by_direction(self.rubber.players, self.rubber.playing_direction)
+            current_player = get_player_by_direction(self.rubber.players, self.rubber.get_playing_direction())
             print(f"\nPlayer {current_player.name} ({current_player.direction})'s turn.")
             if curr_trick:
                 print(f"Current trick so far: {', '.join([f'{direction}: {card}' for direction, card in curr_trick])}")
             else:
                 print("Starting a new trick.")
             print_table(self.rubber.players, self.visible_hand, current_player.direction)
-            self.visible_hand = self.rubber.auction.contract.declarer.partner()  # This should be updated once after the first trick, but I don't want to think too much, it's too late
+            self.visible_hand = self.rubber.get_contract().declarer.partner()  # This should be updated once after the first trick, but I don't want to think too much, it's too late
             #card_str = input('Play a card: ').strip().upper()
             card_str = play_random_card(current_player, self.rubber.play.trick[0][1].suit if self.rubber.play.trick else None)  #testing
             self.rubber.play_card(card_str)
 
-            if not self.rubber.play.trick:
-                finished_trick = self.rubber.play.tricks_log[self.rubber.play.tricks_ew + self.rubber.play.tricks_ns - 1]
+            if not self.rubber.get_current_trick():
+                finished_trick = self.rubber.play.tricks_log[sum(self.rubber.get_tricks_count()) - 1]
                 print("\nTrick completed.")
                 print("Trick summary:")
                 for player_direction, card in finished_trick:

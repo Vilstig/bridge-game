@@ -1,9 +1,10 @@
 from functools import partial
 from typing import Callable, Optional, Dict, List, Tuple
 
+from core import BridgeBid
 from core.board_record import BridgeContract
 from core.deal import Card, PlayerHand
-from core.deal_enums import BiddingSuit, Suit, Direction
+from core.deal_enums import BiddingSuit, Suit, Direction, SpecialBid
 
 
 def validate_card_usage(card: Card, trick: List[Tuple[Direction, Card]], player_cards: PlayerHand) -> bool:
@@ -28,6 +29,41 @@ def evaluate_trick_winner(trick: List[Tuple[Direction, Card]], trump_suit: Biddi
     return best_card
 
 
+def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract_bid: Optional["BridgeContract"], new_bid: BridgeBid,
+                 new_bid_direction: Direction) -> bool:
+    # Jeśli nie ma wcześniejszego zgłoszenia, każde nowe zgłoszenie (ale nie kontra/rekontra) jest legalne
+    if previous_bid is None:
+        if new_bid.special in {SpecialBid.DOUBLE, SpecialBid.REDOUBLE}:
+            return False  # Pierwszym zgłoszeniem nie może być DOUBLE ani REDOUBLE
+        return True
+
+    # Przypadek 1: Jeśli nowe zgłoszenie to PASS, zawsze jest legalne
+    if new_bid.special == SpecialBid.PASS:
+        return True
+
+    # Przypadek 2: Jeśli nowe zgłoszenie to DOUBLE (kontra)
+    if new_bid.special == SpecialBid.DOUBLE:
+        # DOUBLE jest legalne, gdy poprzednie zgłoszenie pochodziło od przeciwnika i nie było kontrą ani rekontrą
+        if previous_bid.special is None and last_contract_bid.declarer.partner() is not new_bid_direction:
+            return True
+        return False
+
+    # Przypadek 3: Jeśli nowe zgłoszenie to REDOUBLE (rekontra)
+    if new_bid.special == SpecialBid.REDOUBLE:
+        # REDOUBLE jest legalne, gdy poprzednie zgłoszenie było DOUBLE i pochodziło od przeciwnika
+        if previous_bid.special == SpecialBid.DOUBLE and (
+                last_contract_bid.declarer.partner() is new_bid_direction) or (
+                last_contract_bid.declarer is new_bid_direction):
+            return True
+        return False
+
+    # Przypadek 4: Jeśli nowe zgłoszenie to normalna licytacja (np. 1H, 2NT, itd.)
+    if previous_bid.special is None:
+        # Jeśli poprzednie zgłoszenie to zwykła licytacja, nowe zgłoszenie musi być wyższe
+        return new_bid.is_higher_than(previous_bid)
+
+    # Jeśli poprzednie zgłoszenie to DOUBLE lub REDOUBLE, nowe zgłoszenie nie może być niższe
+    return new_bid.is_higher_than(previous_bid)
 
 def _evaluate_card(trump_suit: BiddingSuit, suit_led: Suit, card: Card) -> int:
     """

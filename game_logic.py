@@ -4,6 +4,7 @@ from typing import List, Optional
 
 import core
 from core import Card, BiddingSuit
+from core.bids import LEGAL_BIDS
 from core.deal_enums import SpecialBid, Direction, GameStatus
 from core.play_utils import validate_card_usage, evaluate_trick_winner, Score
 
@@ -12,8 +13,7 @@ class Player:
     def __init__(self, name: str, cards: Optional[List[Card]], direction: str) -> None:
         self.name = name
         self.direction = core.Direction.from_str(direction)
-        if cards:
-            self.hand = core.PlayerHand.from_cards(cards)
+        self.hand = core.PlayerHand.from_cards(cards) if cards else None
 
     def play_card(self, card: str) -> Card:
         if not self.hand.cards:
@@ -41,6 +41,7 @@ class Game:
         self.game_status = GameStatus.DEAL_CARDS  # 'Deal cards', 'Auction', 'Play, 'Display score', 'Game over'
         self.game_starter_direction = Direction.NORTH
         self.playing_direction = None
+        self.deal_cards()
 
     def _init_players(self):
         player1 = Player('Filip', None, 'N')
@@ -51,8 +52,7 @@ class Game:
         self.players = [player1, player2, player3, player4]
 
     def deal_cards(self) -> None:
-        if self.game_status != GameStatus.DEAL_CARDS:
-            raise ValueError(f"Game status must be 'Deal cards' to invoke this action")
+        self._validate_game_status(GameStatus.DEAL_CARDS)
 
         all_cards = [core.Card(suit, rank) for suit in core.Suit for rank in core.Rank]
         shuffle(all_cards)
@@ -66,8 +66,7 @@ class Game:
         self.game_status = GameStatus.AUCTION
 
     def bid(self, bid: str) -> None:
-        if self.game_status != GameStatus.AUCTION:
-            raise ValueError(f"Game status must be 'Auction' to invoke this action")
+        self._validate_game_status(GameStatus.AUCTION)
 
         self.auction.bid(self.playing_direction, bid)
         if self.auction.auction_end():
@@ -81,8 +80,7 @@ class Game:
             self.playing_direction = self.playing_direction.next()
 
     def play_card(self, card: str) -> None:
-        if self.game_status != GameStatus.PLAY:
-            raise ValueError(f"Game status must be 'Play' to invoke this action")
+        self._validate_game_status(GameStatus.PLAY)
 
         current_player = get_player_by_direction(self.players, self.playing_direction)
 
@@ -99,7 +97,8 @@ class Game:
                 self.play.tricks_ew += 1
             self.playing_direction = winning_direction
             if self.play.play_over():
-                game_over = self.score.update_game_score(self.auction.contract, self.play.tricks_ns, self.play.tricks_ew)
+                game_over = self.score.update_game_score(self.auction.contract, self.play.tricks_ns,
+                                                         self.play.tricks_ew)
 
                 if game_over:
                     self.game_status = GameStatus.GAME_OVER
@@ -114,12 +113,90 @@ class Game:
             self.auction = Auction()
             self.game_starter_direction = self.game_starter_direction.next()
 
+    def _validate_game_status(self, expected_status: GameStatus) -> None:
+        if self.game_status != expected_status:
+            raise InvalidGameActionError(
+                f"Game status must be '{expected_status}' to invoke this action"
+            )
+
+    def get_bidding_history(self):
+        dir_order = [self.game_starter_direction.offset(i) for i in range(4)]
+        dir_names = [d.name for d in dir_order]
+
+        rounds = []
+        row = [""] * 4
+        current_index = 0
+
+        for bid_str in self.auction.bid_log:
+            col = current_index % 4
+            row[col] = bid_str.split(",")[0]
+            current_index += 1
+            if col == 3:
+                rounds.append(row)
+                row = [""] * 4
+
+        # If round isn't full yet, add a '?' in correct column
+        if any(cell == "" for cell in row):
+            row[current_index % 4] = "?"
+            rounds.append(row)
+
+        return rounds, dir_names
+
+    def get_legal_bids(self) -> list[str]:
+        legal = []
+        all_bids = LEGAL_BIDS
+        for bid_str in all_bids:
+            bid = core.BridgeBid.from_str(bid_str)
+            if core.play_utils.is_bid_legal(
+                    previous_bid=self.auction.curr_bid,
+                    last_contract_bid=self.get_contract(),
+                    new_bid_direction=self.playing_direction,
+                    new_bid=bid):
+                legal.append(bid_str)
+
+        return legal
+
+    def get_players(self) -> List['Player']:
+        """Zwraca listę graczy."""
+        return self.players
+
+    def get_game_status(self) -> GameStatus:
+        """Zwraca obecny status gry."""
+        return self.game_status
+
+    def get_game_starter_direction(self) -> Direction:
+        """Zwraca kierunek gracza rozpoczynającego grę."""
+        return self.game_starter_direction
+
+    def get_playing_direction(self) -> Direction:
+        """Zwraca obecny kierunek gracza, który ma wykonywać ruch."""
+        return self.playing_direction
+
+    def get_contract(self) -> core.BridgeContract:
+        """Zwraca bieżący kontrakt z aukcji."""
+        return self.auction.contract if self.auction else None
+
+    def get_current_scores(self) -> Score:
+        """Zwraca aktualny wyniki w grze."""
+        return self.score
+
+    def get_current_trick(self) -> Optional[List[tuple]]:
+        """Zwraca bieżący trick (o ile taki istnieje)."""
+        return self.play.trick if self.play else None
+
+    def get_tricks_count(self) -> tuple:
+        """Zwraca liczbę zebranych tricków przez każdą stronę."""
+        if self.play:
+            return self.play.tricks_ns, self.play.tricks_ew
+        return 0, 0
+
 
 class Auction:
     def __init__(self):
         self.contract = core.BridgeContract.empty_contract()
         self.pass_count = 0
         self.curr_bid = None
+        self.bid_log = []
         self.contract_log = []
 
     def bid(self, bidding_player_direction: Direction, bid: str):
@@ -127,11 +204,13 @@ class Auction:
 
         if new_bid.special == SpecialBid.PASS:
             self.pass_count += 1
+            self.bid_log.append('PASS')
 
-        elif new_bid.verify_legality(previous_bid=self.curr_bid, new_bid_direction=bidding_player_direction,
-                                     contract_direction=self.contract.declarer):
+        elif core.play_utils.is_bid_legal(previous_bid=self.curr_bid, last_contract_bid=self.contract , new_bid=new_bid,
+                               new_bid_direction=bidding_player_direction):
             self.curr_bid = new_bid
             self.contract.update_from_bridge_bid(self.curr_bid, bidding_player_direction)
+            self.bid_log.append(bid)
             self.contract_log.append(copy(self.contract))
             self.pass_count = 0
         else:
@@ -192,11 +271,17 @@ class Play:
             raise ValueError('Tricks sum exceed 13')
 
 
+class InvalidGameActionError(Exception):
+    """Błąd specyficzny dla nieprawidłowej akcji w grze."""
+    pass
+
+
 def select_player_by_winner(trick, winner):
     for direction, card in trick:
         if winner == card:
             return direction
     return None
+
 
 def get_player_by_direction(players, direction):
     for player in players:
