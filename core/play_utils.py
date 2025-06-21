@@ -29,7 +29,7 @@ def evaluate_trick_winner(trick: List[Tuple[Direction, Card]], trump_suit: Biddi
     return best_card
 
 
-def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract_bid: Optional["BridgeContract"], new_bid: BridgeBid,
+def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract: Optional["BridgeContract"], new_bid: BridgeBid,
                  new_bid_direction: Direction) -> bool:
     # Jeśli nie ma wcześniejszego zgłoszenia, każde nowe zgłoszenie (ale nie kontra/rekontra) jest legalne
     if previous_bid is None:
@@ -44,7 +44,7 @@ def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract_bid: Optiona
     # Przypadek 2: Jeśli nowe zgłoszenie to DOUBLE (kontra)
     if new_bid.special == SpecialBid.DOUBLE:
         # DOUBLE jest legalne, gdy poprzednie zgłoszenie pochodziło od przeciwnika i nie było kontrą ani rekontrą
-        if previous_bid.special is None and last_contract_bid.declarer.partner() is not new_bid_direction:
+        if previous_bid.special is None and last_contract.declarer.partner() is not new_bid_direction:
             return True
         return False
 
@@ -52,8 +52,8 @@ def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract_bid: Optiona
     if new_bid.special == SpecialBid.REDOUBLE:
         # REDOUBLE jest legalne, gdy poprzednie zgłoszenie było DOUBLE i pochodziło od przeciwnika
         if previous_bid.special == SpecialBid.DOUBLE and (
-                last_contract_bid.declarer.partner() is new_bid_direction) or (
-                last_contract_bid.declarer is new_bid_direction):
+                last_contract.declarer.partner() is new_bid_direction) or (
+                last_contract.declarer is new_bid_direction):
             return True
         return False
 
@@ -61,9 +61,9 @@ def is_bid_legal(previous_bid: Optional["BridgeBid"], last_contract_bid: Optiona
     if previous_bid.special is None:
         # Jeśli poprzednie zgłoszenie to zwykła licytacja, nowe zgłoszenie musi być wyższe
         return new_bid.is_higher_than(previous_bid)
-
-    # Jeśli poprzednie zgłoszenie to DOUBLE lub REDOUBLE, nowe zgłoszenie nie może być niższe
-    return new_bid.is_higher_than(previous_bid)
+    else:
+        contract_to_bid = BridgeBid(level=last_contract.level, suit=last_contract.suit)
+        return new_bid.is_higher_than(contract_to_bid)
 
 def _evaluate_card(trump_suit: BiddingSuit, suit_led: Suit, card: Card) -> int:
     """

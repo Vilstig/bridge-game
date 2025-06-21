@@ -147,11 +147,8 @@ class Game:
         all_bids = LEGAL_BIDS
         for bid_str in all_bids:
             bid = core.BridgeBid.from_str(bid_str)
-            if core.play_utils.is_bid_legal(
-                    previous_bid=self.auction.curr_bid,
-                    last_contract_bid=self.get_contract(),
-                    new_bid_direction=self.playing_direction,
-                    new_bid=bid):
+            if core.play_utils.is_bid_legal(previous_bid=self.auction.curr_bid, last_contract=self.get_contract(),
+                                            new_bid=bid, new_bid_direction=self.playing_direction):
                 legal.append(bid_str)
 
         return legal
@@ -206,8 +203,8 @@ class Auction:
             self.pass_count += 1
             self.bid_log.append('PASS')
 
-        elif core.play_utils.is_bid_legal(previous_bid=self.curr_bid, last_contract_bid=self.contract , new_bid=new_bid,
-                               new_bid_direction=bidding_player_direction):
+        elif core.play_utils.is_bid_legal(previous_bid=self.curr_bid, last_contract=self.contract, new_bid=new_bid,
+                                          new_bid_direction=bidding_player_direction):
             self.curr_bid = new_bid
             self.contract.update_from_bridge_bid(self.curr_bid, bidding_player_direction)
             self.bid_log.append(bid)
