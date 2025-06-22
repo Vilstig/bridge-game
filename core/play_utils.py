@@ -1,10 +1,11 @@
 from functools import partial
-from typing import Callable, Optional, Dict, List, Tuple
+from typing import Callable, Optional, List, Tuple
 
 from core import BridgeBid
 from core.board_record import BridgeContract
 from core.deal import Card, PlayerHand
 from core.deal_enums import BiddingSuit, Suit, Direction, SpecialBid
+from game_logic import Player
 
 
 def validate_card_usage(card: Card, trick: List[Tuple[Direction, Card]], player_cards: PlayerHand) -> bool:
@@ -165,7 +166,6 @@ def calculate_score(level: int, suit: Optional[BiddingSuit], doubled: int, trick
     :param vulnerable: vulnerability of declarer
     :return: declarer's score
     """
-    from core.board_record import Contract
 
     if level == 0:  # Pass Out
         return 0
@@ -301,7 +301,7 @@ class TeamScore:
         return score_sum + self.rubber_bonus + self.slam_bonus + self.double_bonus + self.overtrick_points + self.penalty_points
 
 class Score:
-    def __init__(self, team_ns_name:str = 'team_NS', team_ew_name:str = 'team_ew'):
+    def __init__(self, team_ns_name: str = 'team_NS', team_ew_name: str = 'team_ew'):
         self.team_ns = TeamScore(team_ns_name)
         self.team_ew = TeamScore(team_ew_name)
         self.games = ['game 1', 'game 2', 'game 3']
@@ -349,3 +349,22 @@ class Score:
         if game_status == 'Rubber finished':
             return True
         return False
+
+
+class InvalidGameActionError(Exception):
+    """Błąd specyficzny dla nieprawidłowej akcji w grze."""
+    pass
+
+
+def select_player_by_winner(trick: List[Tuple[Direction, Card]], winner: Card) -> Optional[Direction]:
+    for direction, card in trick:
+        if winner == card:
+            return direction
+    return None
+
+
+def get_player_by_direction(players: List[Player], direction: Direction) -> Optional[Player]:
+    for player in players:
+        if player.direction == direction:
+            return player
+    raise ValueError("Invalid direction")

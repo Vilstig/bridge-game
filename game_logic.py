@@ -6,7 +6,8 @@ import core
 from core import Card, BiddingSuit
 from core.bids import LEGAL_BIDS
 from core.deal_enums import SpecialBid, Direction, GameStatus
-from core.play_utils import validate_card_usage, evaluate_trick_winner, Score
+from core.play_utils import validate_card_usage, evaluate_trick_winner, Score, InvalidGameActionError, \
+    select_player_by_winner, get_player_by_direction
 
 
 class Player:
@@ -43,7 +44,7 @@ class Game:
         self.playing_direction = None
         self.deal_cards()
 
-    def _init_players(self):
+    def _init_players(self) -> None:
         player1 = Player('Filip', None, 'N')
         player2 = Player('Dorota', None, 'E')
         player3 = Player('Tomek', None, 'S')
@@ -196,7 +197,7 @@ class Auction:
         self.bid_log = []
         self.contract_log = []
 
-    def bid(self, bidding_player_direction: Direction, bid: str):
+    def bid(self, bidding_player_direction: Direction, bid: str) -> None:
         new_bid = core.BridgeBid.from_str(bid)
 
         if new_bid.special == SpecialBid.PASS:
@@ -213,7 +214,7 @@ class Auction:
         else:
             raise ValueError('Illegal bid')
 
-    def auction_end(self):
+    def auction_end(self) -> bool:
         if self.pass_count == 4:
             return True
         elif self.pass_count == 3 and self.curr_bid is not None:
@@ -266,22 +267,3 @@ class Play:
             return True
         else:
             raise ValueError('Tricks sum exceed 13')
-
-
-class InvalidGameActionError(Exception):
-    """Błąd specyficzny dla nieprawidłowej akcji w grze."""
-    pass
-
-
-def select_player_by_winner(trick, winner):
-    for direction, card in trick:
-        if winner == card:
-            return direction
-    return None
-
-
-def get_player_by_direction(players, direction):
-    for player in players:
-        if player.direction == direction:
-            return player
-    raise ValueError("Invalid direction")

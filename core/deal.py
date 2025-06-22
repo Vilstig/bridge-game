@@ -19,7 +19,7 @@ class Card:
     def __init__(self, suit: Suit, rank: Rank):
         self.suit = suit
         self.rank = rank
-        self.image_path = f"assets/PNG-cards/{self.suit.name[0]}{self.rank.value[1]}.png"  # Przykład: "assets/SA.png"
+        self.image_path = f"assets/PNG-cards/{self.suit.name[0]}{self.rank.value[1]}.png"  # Przykład: "assets/PNG-cards/SA.png"
 
     def __eq__(self, other) -> bool:
         return self.rank == other.rank and self.suit == other.suit

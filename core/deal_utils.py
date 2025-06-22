@@ -186,24 +186,3 @@ def calculate_shape(cards: List[Card], sort=False) -> Tuple[int, ...]:
     if sort:
         return tuple(sorted(shape_count, reverse=True))
     return tuple(shape_count)
-
-def deal_cards():
-    from core.deal import Card
-    from core.deal_enums import Suit, Rank
-
-    all_cards = [Card(suit, rank) for suit in Suit for rank in Rank]
-    shuffle(all_cards)
-    player1 = PlayerHand.from_cards(all_cards[:13])
-    player2 = PlayerHand.from_cards(all_cards[13:26])
-    player3 = PlayerHand.from_cards(all_cards[26:39])
-    player4 = PlayerHand.from_cards(all_cards[39:])
-
-    print(count_hcp(player1.cards))
-    print(count_hcp(player2.cards))
-    print(count_hcp(player3.cards))
-    print(count_hcp(player4.cards))
-
-    return player1, player2, player3, player4
-
-
-#print(deal_cards())
