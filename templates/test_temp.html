@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bridge Game</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="role-selection">
+    <h2>Select Your Role:</h2>
+    <select id="role-dropdown"></select>
+    <button onclick="joinGame()">Join</button>
+  </div>
+
+
+  <div id="game" style="display: none;">
+    <!--<h1>Counter: <span id="counter">0</span></h1>-->
+    <h2>Your Role: <span id="your-role">-</span></h2>
+    <!--<h3>Current Turn: <span id="turn">-</span></h3>
+
+    <button id="increment" onclick="increment()" disabled>+</button>
+    <button id="decrement" onclick="decrement()" disabled>-</button>
+    -->
+    <button id="ready-btn" onclick="toggleReady()">Ready</button>
+
+    <h4>Status:</h4>
+    <ul id="player-status"></ul>
+    <p>Spectators: <span id="spectator-count">0</span></p>
+  </div>
+  <script src="/static/client.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+from operator import truediv
+from random import shuffle
+from typing import Optional
+
+from core.deal_enums import GameStatus, Direction, Suit
+from game_logic import Game, Player, get_player_by_direction
+
+class Handler:
+    def __init__(self):
+        self.rubber = Game()
+        self.current_status = None
+        self.visible_hand = None
+        self.player_dict = {} # sid: {dir: ..., ready:..., has_played:...}
+        self.spectators = set()
+        self.game_running = False
+
+    def available_dirs(self):
+        roles = [d.abbreviation() for d in Direction if d not in self.rubber.taken_dirs()]
+        roles.append('Spectator')
+        return roles
+
+    def add_player(self, sid, role: str) -> bool: #can this be cleanly refactored to handle nonexistent roles? shouldnt happen, but may be good practice
+        if role == 'Spectator':
+            self.spectators.add(sid)
+            return True
+        elif Direction.from_str(role[0]) in self.rubber.taken_dirs():
+            return False
+        else:
+            player = get_player_by_direction(self.rubber.players, Direction.from_str(role))
+            player.name = 'Prr Prr Patapim'
+            self.player_dict[sid] = {'dir': role[0], 'ready': False, 'has_played': False}
+        return True
+
+    def get_status(self):
+        return {
+            'players': {p['dir']: p['ready'] for p in self.player_dict.values()},
+            'spec_count': len(self.spectators),
+            'game_running': self.game_running
+        }
+
+    def toggle_ready(self, sid):
+        if sid in self.player_dict:
+            self.player_dict[sid]['ready'] = not self.player_dict[sid]['ready']
+
+    def remove_player(self, sid) -> bool: #dummy players in game instead of deleting them, delete from dict in handler
+        if sid in self.player_dict:
+            player = get_player_by_direction(self.rubber.players, Direction.from_str(self.player_dict[sid]['dir']))
+            player.name = ''
+            self.player_dict.pop(sid)
+            self.game_running = False
+            for p in self.player_dict.values():
+                p['ready'] = False
+            return True
+        self.spectators.discard(sid)
+        return False

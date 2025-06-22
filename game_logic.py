@@ -33,7 +33,7 @@ class Player:
 
 class Game:
     def __init__(self):
-        self.players = []
+        self.players = [] #could be better as a dir: player dictionary. O(1) get, delete, add, no need for get_player_by_direction
         self._init_players()
         self.auction = Auction()
         self.play = None
@@ -41,13 +41,16 @@ class Game:
         self.game_status = GameStatus.DEAL_CARDS  # 'Deal cards', 'Auction', 'Play, 'Display score', 'Game over'
         self.game_starter_direction = Direction.NORTH
         self.playing_direction = None
-        self.deal_cards()
+        #self.deal_cards()
+
+    def taken_dirs(self):
+        return [p.direction for p in self.players if p.name != '']
 
     def _init_players(self):
-        player1 = Player('Filip', None, 'N')
-        player2 = Player('Dorota', None, 'E')
-        player3 = Player('Tomek', None, 'S')
-        player4 = Player('Adam', None, 'W')
+        player1 = Player('', None, 'N')
+        player2 = Player('', None, 'E')
+        player3 = Player('', None, 'S')
+        player4 = Player('', None, 'W')
 
         self.players = [player1, player2, player3, player4]
 

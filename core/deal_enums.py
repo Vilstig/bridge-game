@@ -18,7 +18,7 @@ class Direction(Enum):
     __from_str_map__ = {"N": NORTH, "E": EAST, "S": SOUTH, "W": WEST}
 
     @classmethod
-    def from_str(cls, direction_str) -> Direction:
+    def from_str(cls, direction_str: str) -> Direction:
         return Direction(cls.__from_str_map__[direction_str.upper()])
 
     def __lt__(self, other) -> bool:

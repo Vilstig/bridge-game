@@ -101,8 +101,8 @@ def print_table(players, visible_hand_direction, current_direction):
         # If not visible, leave suits empty (but show suit headings later)
         return suits
 
-    def is_visible(direction):
-        if current_direction == visible_hand_direction:
+    def is_visible(direction: Direction):
+        if current_direction == visible_hand_direction: #wouldnt tuples be less storage heavy?
             return direction in [visible_hand_direction, visible_hand_direction.partner()]
         else:
             return direction in [visible_hand_direction, current_direction]
