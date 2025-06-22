@@ -78,14 +78,6 @@ def _evaluate_card(trump_suit: BiddingSuit, suit_led: Suit, card: Card) -> int:
     return score
 
 
-def trick_evaluator(trump_suit: BiddingSuit, suit_led: Suit) -> Callable:
-    """
-    :return: a partial which takes a Card as an argument and returns an ordering score within the context of a trick in
-    progress
-    """
-    return partial(_evaluate_card, trump_suit, suit_led)
-
-
 _FIRST_TRICK_VALUE = {
     BiddingSuit.NO_TRUMP: 40,
     BiddingSuit.SPADES: 30,

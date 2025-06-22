@@ -54,18 +54,6 @@ LEGAL_BIDS = [
 _LEGAL_BIDS_SET = set(LEGAL_BIDS)
 
 
-def canonicalize_bid(bid: str) -> Optional[str]:
-    bid = bid.upper().strip("!")
-    if bid.endswith("N"):
-        bid = bid + "T"
-    if bid in ["DBL", "D"]:
-        bid = "X"
-    elif bid in ["REDBL", "R"]:
-        bid = "XX"
-    elif bid == "P":
-        bid = "PASS"
-    return bid if bid in _LEGAL_BIDS_SET else None
-
 
 class BridgeBid:
     def __init__(self, level: int = None, suit: BiddingSuit = None, special: SpecialBid = None):
