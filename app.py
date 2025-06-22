@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
+
+from core.deal_enums import GameStatus
 from game_logic import Game
 
 app = Flask(__name__)
@@ -27,13 +29,16 @@ def index():
     bidding_rounds, bidding_order = game.get_bidding_history()
     legal_bids = game.get_legal_bids()
 
+    legal_cards = game.get_legal_cards_to_play() if game.game_status == GameStatus.PLAY else []
+
     return render_template("game.html",
                            game=game,
                            hands=hands,
                            trick=trick,
                            bidding_rounds=bidding_rounds,
                            bidding_order=bidding_order,
-                           legal_bids=legal_bids
+                           legal_bids=legal_bids,
+                           legal_cards=legal_cards  # ← pass this into the template
                            )
 
 

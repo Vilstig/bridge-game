@@ -7,7 +7,7 @@ from core import Card, BiddingSuit
 from core.bids import LEGAL_BIDS
 from core.deal_enums import SpecialBid, Direction, GameStatus
 from core.play_utils import validate_card_usage, evaluate_trick_winner, Score, InvalidGameActionError, \
-    select_player_by_winner, get_player_by_direction
+    select_player_by_winner
 
 
 class Player:
@@ -154,6 +154,16 @@ class Game:
 
         return legal
 
+    def get_legal_cards_to_play(self) -> list[str]:
+        if self.game_status != GameStatus.PLAY or not self.play:
+            return []
+
+        player = get_player_by_direction(self.players, self.playing_direction)
+        return [
+            str(card) for card in player.hand.cards
+            if validate_card_usage(card, self.play.trick, player.hand)
+        ]
+
     def get_players(self) -> List['Player']:
         """Zwraca listę graczy."""
         return self.players
@@ -267,3 +277,9 @@ class Play:
             return True
         else:
             raise ValueError('Tricks sum exceed 13')
+
+def get_player_by_direction(players: List[Player], direction: Direction) -> Optional[Player]:
+    for player in players:
+        if player.direction == direction:
+            return player
+    raise ValueError("Invalid direction")

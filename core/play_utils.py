@@ -5,7 +5,6 @@ from core import BridgeBid
 from core.board_record import BridgeContract
 from core.deal import Card, PlayerHand
 from core.deal_enums import BiddingSuit, Suit, Direction, SpecialBid
-from game_logic import Player
 
 
 def validate_card_usage(card: Card, trick: List[Tuple[Direction, Card]], player_cards: PlayerHand) -> bool:
@@ -362,9 +361,3 @@ def select_player_by_winner(trick: List[Tuple[Direction, Card]], winner: Card) -
             return direction
     return None
 
-
-def get_player_by_direction(players: List[Player], direction: Direction) -> Optional[Player]:
-    for player in players:
-        if player.direction == direction:
-            return player
-    raise ValueError("Invalid direction")

@@ -100,7 +100,7 @@ class BridgeContract:
         contract_str = str(self.level) + self.suit.abbreviation()
         for i in range(self.doubled):
             contract_str += "X"
-        contract_str += f', Declarer: {self.declarer.abbreviation()}'
+        contract_str += f' {self.declarer.abbreviation()}'
         return contract_str
 
 
