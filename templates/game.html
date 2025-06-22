@@ -10,8 +10,6 @@
             margin: 0;
             padding: 0;
         }
-
-
         .table-container {
             display: grid;
             grid-template-areas:
@@ -45,7 +43,7 @@
 
         .card-hand img.card {
             width: 80px;
-            margin-left: -60px;
+            margin-left: -40px;
             z-index: 1;
             transition: transform 0.2s;
         }
@@ -115,6 +113,28 @@
             text-align: center;
             margin-top: 20px;
         }
+        .card-button {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+        .card-button[disabled] img.card {
+            opacity: 0.6;
+            filter: grayscale(100%);
+        }
+        img.card {
+            width: 80px;
+        }
+
+
     </style>
 </head>
 <body>
@@ -126,41 +146,74 @@
     <!-- North -->
     <div class="north">
         <strong>North</strong>
-        <div class="card-hand">
-            {% for card in hands['N'] %}
-                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}" class="card rotate-180">
-            {% endfor %}
-        </div>
+        <form action="{{ url_for('play') }}" method="post">
+            <div class="card-hand horizontal">
+                {% set direction = 'N' %}
+                {% for card in hands[direction] %}
+                    <button type="submit" name="card" value="{{ card }}"
+                            class="card-button"
+                            {% if game.game_status.name != 'PLAY' or game.playing_direction.abbreviation() != direction %}disabled{% endif %}>
+                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                             class="card rotate-180">
+                    </button>
+                {% endfor %}
+            </div>
+        </form>
     </div>
 
     <!-- South -->
     <div class="south">
         <strong>South</strong>
-        <div class="card-hand">
-            {% for card in hands['S'] %}
-                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}" class="card rotate-0">
-            {% endfor %}
-        </div>
+        <form action="{{ url_for('play') }}" method="post">
+            <div class="card-hand horizontal">
+                {% set direction = 'S' %}
+                {% for card in hands[direction] %}
+                    <button type="submit" name="card" value="{{ card }}"
+                            class="card-button"
+                            {% if game.game_status.name != 'PLAY' or game.playing_direction.abbreviation() != direction %}disabled{% endif %}>
+                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                             class="card rotate-0">
+                    </button>
+                {% endfor %}
+            </div>
+        </form>
     </div>
 
     <!-- West -->
     <div class="west">
         <strong>West</strong>
-        <div class="card-hand vertical">
-            {% for card in hands['W'] %}
-                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}" class="card rotate-90" style="margin-top: -60px;">
-            {% endfor %}
-        </div>
+        <form action="{{ url_for('play') }}" method="post">
+            <div class="card-hand vertical">
+                {% set direction = 'W' %}
+                {% for card in hands[direction] %}
+                    <button type="submit" name="card" value="{{ card }}"
+                            class="card-button"
+                            {% if game.game_status.name != 'PLAY' or game.playing_direction.abbreviation() != direction %}disabled{% endif %}>
+                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                             class="card rotate-90" style="margin-top: -60px;">
+                    </button>
+                {% endfor %}
+            </div>
+        </form>
     </div>
+
 
     <!-- East -->
     <div class="east">
         <strong>East</strong>
-        <div class="card-hand vertical">
-            {% for card in hands['E'] %}
-                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}" class="card rotate-270" style="margin-top: -60px;">
-            {% endfor %}
-        </div>
+        <form action="{{ url_for('play') }}" method="post">
+            <div class="card-hand vertical">
+                {% set direction = 'E' %}
+                {% for card in hands[direction] %}
+                    <button type="submit" name="card" value="{{ card }}"
+                            class="card-button"
+                            {% if game.game_status.name != 'PLAY' or game.playing_direction.abbreviation() != direction %}disabled{% endif %}>
+                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                             class="card rotate-270" style="margin-top: -60px;">
+                    </button>
+                {% endfor %}
+            </div>
+        </form>
     </div>
 
     <!-- Bidding Table & Buttons -->
@@ -218,23 +271,59 @@
 
         {% endif %}
 
-        {% if hands and game.game_status.name == 'PLAY' %}
-            <form action="{{ url_for('play') }}" method="post">
-                <div class="card-hand">
-                    {% for card in hands[game.playing_direction.name] %}
-                        <button type="submit" name="card" value="{{ card }}"
-                                style="background: none; border: none; padding: 0; margin: 0;">
-                            <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                                 alt="{{ card }}"
-                                 class="card
-                                    {% if game.playing_direction.name == 'N' %}rotate-180{% endif %}
-                                    {% if game.playing_direction.name == 'E' %}rotate-270{% endif %}
-                                    {% if game.playing_direction.name == 'W' %}rotate-90{% endif %}
-                                    {% if game.playing_direction.name == 'S' %}rotate-0{% endif %}">
-                        </button>
+        {% if game.game_status.name == 'PLAY' %}
+            <!-- Current trick with arrow -->
+            <div style="margin: 20px auto; position: relative; display: grid; grid-template-areas:
+                '.    north    .'
+                'west center east'
+                '.    south    .';
+                grid-template-columns: 1fr auto 1fr;
+                grid-template-rows: auto auto auto;
+                align-items: center;
+                justify-content: center;
+                min-height: 160px;
+            ">
+
+                <!-- ARROW -->
+                <div style="grid-area: center; position: relative;">
+                    <div style="font-size: 36px; transform:
+                        rotate({% if game.playing_direction.abbreviation() == 'S' %}180deg
+                               {% elif game.playing_direction.abbreviation() == 'W' %}270deg
+                               {% elif game.playing_direction.abbreviation() == 'E' %}90deg
+                               {% else %}0deg{% endif %});
+                        margin-bottom: 20px;
+                        z-index: 100;">
+                        ↑
+                    </div>
+                </div>
+                <!-- Cards in current trick -->
+                <!-- Trick stack box -->
+                <div style="grid-area: center; position: relative; width: 100px; height: 100px;">
+                    {% for direction, card in trick %}
+                        {% set offset_x = 0 %}
+                        {% set offset_y = 0 %}
+                        {% if direction == 'N' %}
+                            {% set offset_y = -30 %}
+                        {% elif direction == 'S' %}
+                            {% set offset_y = 30 %}
+                        {% elif direction == 'E' %}
+                            {% set offset_x = 30 %}
+                        {% elif direction == 'W' %}
+                            {% set offset_x = -30 %}
+                        {% endif %}
+
+                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                             class="card rotate-{% if direction == 'N' %}180{% elif direction == 'E' %}270{% elif direction == 'W' %}90{% else %}0{% endif %}"
+                             style="position: absolute;
+                                    left: calc(50% + {{ offset_x }}px - 40px);  /* center - half card width + offset */
+                                    top: calc(50% + {{ offset_y }}px - 60px);   /* center - half card height + offset */
+                                    width: 80px;
+                                    z-index: 10;">
                     {% endfor %}
                 </div>
-            </form>
+
+
+            </div>
         {% endif %}
     </div>
 </div>

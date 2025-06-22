@@ -20,9 +20,8 @@ def index():
 
     # Trick jako lista [(direction, card), ...], jeśli już rozpoczęto fazę gry
     trick = (
-        [(direction.name, str(card)) for direction, card in game.play.trick]
-        if game.play and game.play.trick
-        else []
+        [(direction.abbreviation(), str(card)) for direction, card in game.play.trick]
+        if game.play and game.play.trick else []
     )
 
     bidding_rounds, bidding_order = game.get_bidding_history()
@@ -55,10 +54,10 @@ def bid():
 
 @app.route('/play', methods=['POST'])
 def play():
-    """Obsługa fazy gry (zagranie karty)."""
     card = request.form.get('card')
     game.play_card(card)
     return redirect(url_for('index'))
+
 
 
 @app.route('/next_phase', methods=['POST'])
