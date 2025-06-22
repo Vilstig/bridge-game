@@ -7,6 +7,7 @@ app.config['SECRET_KEY'] = 'tanuki???'
 socketio = SocketIO(app, async_mode='eventlet')
 handler = Handler()
 
+#==================LOBBY AND CONNECTIONS====================================
 @app.route('/')
 def index():
     return render_template('test_temp.html')
@@ -21,26 +22,48 @@ def handle_disconnect():
     sid = request.sid
     if handler.remove_player(sid):
         emit('game_paused', broadcast=True)
-    update_status()
+    update_lobby()
 
 @socketio.on('choose_role')
 def choose_role(role: str):
     sid = request.sid
     if not handler.add_player(sid, role):
-        emit('role_taken', role)
+        emit('action_failed', f'Role ${role} is taken. Select a different role.')
         return
     emit('role_assigned', role)
-    update_status()
+    update_lobby()
     emit('available_roles', handler.available_dirs(), broadcast=True)
 
 @socketio.on('toggle_ready')
 def toggle_ready():
     sid = request.sid
     handler.toggle_ready(sid)
-    update_status()
+    update_lobby()
+    if handler.game_running:
+        if not handler.deal_cards():
+            emit('action_failed', "Can't deal cards. Wrong game phase")
+            return
+        emit('bidding_phase', broadcast=True)
+        update_auction()
 
-def update_status():
-    emit('update_status', handler.get_status(), broadcast=True)
+def update_lobby():
+    emit('update_lobby', handler.get_status(), broadcast=True)
+
+#==========================AUCTION========================================
+
+@socketio.on('make_bid')
+def make_bid(bid):
+    sid = request.sid
+    if not handler.make_bid(sid, bid):
+        emit('action_failed', "Can't bid. Not your turn or wrong phase.")
+        return
+    update_auction()
+
+def update_auction():
+    auction_status = handler.auction_status()
+    for sid in auction_status['hands']: #updating player exclusive fields
+        emit('player_update_auction', (auction_status['hands'][sid], auction_status['player_turns'][sid]), room=sid)
+    emit('update_auction', (auction_status['turn'], auction_status['contract'], auction_status['bids']), broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000) # debug=True for debug info

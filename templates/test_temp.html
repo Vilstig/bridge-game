@@ -5,27 +5,33 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
+
   <div id="role-selection">
-    <h2>Select Your Role:</h2>
+    <h1>Select Your Role:</h1>
     <select id="role-dropdown"></select>
     <button onclick="joinGame()">Join</button>
   </div>
 
 
-  <div id="game" style="display: none;">
-    <!--<h1>Counter: <span id="counter">0</span></h1>-->
-    <h2>Your Role: <span id="your-role">-</span></h2>
-    <!--<h3>Current Turn: <span id="turn">-</span></h3>
-
-    <button id="increment" onclick="increment()" disabled>+</button>
-    <button id="decrement" onclick="decrement()" disabled>-</button>
-    -->
+  <div id="lobby" style="display: none;">
+    <h1>Your Role: <span id="your-role">-</span></h1>
     <button id="ready-btn" onclick="toggleReady()">Ready</button>
-
-    <h4>Status:</h4>
+    <h2>Status:</h2>
     <ul id="player-status"></ul>
     <p>Spectators: <span id="spectator-count">0</span></p>
   </div>
+
+
+  <div id="auction" style="display: none;">
+    <h1>Auction Phase</h1>
+    <h2>Your role: <span id="your-role-bid">-</span></h2>
+    <h3>Turn: <span id="curr-turn">-</span></h3>
+    <h4>Contract: <span id="contract">-</span></h4>
+    <ul id="player-hand"></ul>
+    <select id="bid-dropdown"></select>
+    <button id="bid-btn" onclick="makeBid()" disabled>Make bid</button>
+  </div>
+
   <script src="/static/client.js"></script>
 </body>
 </html>
