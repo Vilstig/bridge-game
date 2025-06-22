@@ -89,7 +89,7 @@ class Game:
         self.play.play_card(played_card, current_player)
 
         if self.play.trick_over():
-            finished_trick = self.play.tricks_log[self.play.tricks_ew + self.play.tricks_ns - 1]
+            finished_trick = self.play.tricks_log[-1]
             winner = evaluate_trick_winner(finished_trick, self.play.trump_suit)
             winning_direction = select_player_by_winner(finished_trick, winner)
             if winning_direction in [Direction.NORTH, Direction.SOUTH]:

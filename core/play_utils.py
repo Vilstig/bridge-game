@@ -1,5 +1,4 @@
-from functools import partial
-from typing import Callable, Optional, List, Tuple
+from typing import Optional, List, Tuple
 
 from core import BridgeBid
 from core.board_record import BridgeContract

@@ -67,8 +67,8 @@ class Cli:
                 print("Starting a new trick.")
             print_table(self.rubber.players, self.visible_hand, current_player.direction)
             self.visible_hand = self.rubber.get_contract().declarer.partner()  # This should be updated once after the first trick, but I don't want to think too much, it's too late
-            #card_str = input('Play a card: ').strip().upper()
-            card_str = play_random_card(current_player, self.rubber.play.trick[0][1].suit if self.rubber.play.trick else None)  #testing
+            card_str = input('Play a card: ').strip().upper()
+            #card_str = play_random_card(current_player, self.rubber.play.trick[0][1].suit if self.rubber.play.trick else None)
             self.rubber.play_card(card_str)
 
             if not self.rubber.get_current_trick():

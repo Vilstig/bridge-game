@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Optional
 
 from core import BridgeBid
@@ -19,7 +17,7 @@ class BridgeContract:
         self.declarer = declarer
 
     @staticmethod
-    def empty_contract() -> BridgeContract:
+    def empty_contract() -> 'BridgeContract':
         return BridgeContract(0, None, 0, None)
 
     def update_from_bridge_bid(self, bid: 'BridgeBid', declarer: Direction) -> None:
