@@ -41,6 +41,7 @@ class Handler:
         }
 
     def auction_status(self):
+        rounds, dir_names = self.rubber.get_bidding_history()
         return {
             'turn': self.rubber.playing_direction.abbreviation(),
             'contract': str(self.rubber.auction.contract),
@@ -48,7 +49,7 @@ class Handler:
             'bids': self.rubber.get_legal_bids(),
             'player_turns': self.player_turns(),
             'direction_hands': self.get_direction_hands(),
-            'bidding_history': self.rubber.get_bidding_history(),
+            'bidding_history': [rounds, dir_names],
         }
 
     def player_turns(self):

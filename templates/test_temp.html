@@ -26,24 +26,23 @@
   <h3>Turn: <span id="curr-turn">-</span></h3>
   <h4>Contract: <span id="contract">-</span></h4>
 
-  <div class="table-container">
-    <div id="auction-hands-view">
-      <!-- renderHands() wstawi ręce -->
-    </div>
+  <!-- tylko twoja ręka -->
+  <div id="your-auction-hand" class="card-hand horizontal" style="margin-bottom: 30px;"></div>
 
-    <div class="center">
-      <table class="bidding-table" id="bidding-history"></table>
-      <form class="bidding-buttons" onsubmit="return false;">
-        <table id="bidding-buttons-table"></table>
-        <div class="special-actions">
-          <button type="button" id="bid-pass" onclick="makeBidFromButton('PASS')">PASS</button>
-          <button type="button" id="bid-x" onclick="makeBidFromButton('X')">X</button>
-          <button type="button" id="bid-xx" onclick="makeBidFromButton('XX')">XX</button>
-        </div>
-      </form>
-    </div>
+  <!-- bidding table -->
+  <div class="center">
+    <table class="bidding-table" id="bidding-history"></table>
+    <form class="bidding-buttons" onsubmit="return false;">
+      <table id="bidding-buttons-table"></table>
+      <div class="special-actions">
+        <button type="button" id="bid-pass" onclick="makeBidFromButton('PASS')">PASS</button>
+        <button type="button" id="bid-x" onclick="makeBidFromButton('X')">X</button>
+        <button type="button" id="bid-xx" onclick="makeBidFromButton('XX')">XX</button>
+      </div>
+    </form>
   </div>
 </div>
+
 
 
 <div id="play" style="display: none;">

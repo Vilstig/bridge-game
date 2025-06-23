@@ -56,9 +56,10 @@ socket.on('update_auction', data => {
 
 
 socket.on('player_update_auction', data => {
-    const { view, turn } = data;
-    renderHands('auction-hands-view', view);
+    const { hand } = data;
+    renderOwnHand('your-auction-hand', hand);
 });
+
 
 
 
@@ -168,30 +169,35 @@ function switchView(viewId) {
     });
 }
 
-function renderBiddingTable(biddingHistory) {
+function renderBiddingTable([rounds, dirNames]) {
     const table = document.getElementById('bidding-history');
     table.innerHTML = '';
 
-    if (!biddingHistory || biddingHistory.length === 0) return;
-
+    // Header
     const header = document.createElement('tr');
-    ['N', 'E', 'S', 'W'].forEach(dir => {
+    dirNames.forEach(dir => {
         const th = document.createElement('th');
         th.innerText = dir;
         header.appendChild(th);
     });
     table.appendChild(header);
 
-    biddingHistory.forEach(row => {
+    // Bidding rounds
+    rounds.forEach(row => {
         const tr = document.createElement('tr');
         row.forEach(bid => {
             const td = document.createElement('td');
-            td.innerHTML = (bid === '?') ? '<strong style="font-size:20px;">?</strong>' : bid;
+            if (bid === '?') {
+                td.innerHTML = '<strong style="font-size: 22px; color: lightblue;">?</strong>';
+            } else {
+                td.innerText = bid;
+            }
             tr.appendChild(td);
         });
         table.appendChild(tr);
     });
 }
+
 
 function renderBidButtons(legalBids) {
     const table = document.getElementById('bidding-buttons-table');
@@ -265,4 +271,22 @@ function renderHands(containerId, view) {
         handWrapper.appendChild(handDiv);
         container.appendChild(handWrapper);
     }
+}
+
+function renderOwnHand(containerId, cards) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    cards.forEach(card => {
+        const button = document.createElement('button');
+        button.className = 'card-button';
+        button.disabled = true;
+
+        const img = document.createElement('img');
+        img.className = 'card rotate-0'; // zawsze poziomo
+        img.src = card === '*' ? '/static/assets/card_back.png' : `/static/assets/${card}.png`;
+
+        button.appendChild(img);
+        container.appendChild(button);
+    });
 }

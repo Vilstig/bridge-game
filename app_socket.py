@@ -124,13 +124,10 @@ def end_scores():
 # ======================== CUSTOM EMITS ===========================
 
 def update_player_auction():
-    hand_status = handler.player_hand_update()
-    visible_hands = handler.get_visible_hands_per_sid()
-
-    for sid in hand_status['player_turns']:
+    auction_status = handler.auction_status()
+    for sid in handler.player_dict:
         emit('player_update_auction', {
-            'view': visible_hands[sid],
-            'turn': hand_status['player_turns'][sid]
+            'hand': auction_status['hands'][sid],
         }, room=sid)
 
 
