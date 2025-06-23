@@ -8,22 +8,24 @@ from game_logic import Game, Player, get_player_by_direction
 class Handler:
     def __init__(self):
         self.rubber = Game()
-        self.current_status = None
         self.visible_hand = None
         self.player_dict = {} # sid: {dir: ..., ready:..., has_played:...}
-        self.spectators = set()
+        #self.spectators = set()
         self.game_running = False
+
+    def get_game_status_str(self) -> str:
+        return self.rubber.game_status.__str__()
 
     def available_dirs(self):
         roles = [d.abbreviation() for d in Direction if d not in self.rubber.taken_dirs()]
-        roles.append('Spectator')
+        #roles.append('Spectator')
         return roles
 
     def add_player(self, sid, role: str) -> bool: #can this be cleanly refactored to handle nonexistent roles? shouldnt happen, but may be good practice
-        if role == 'Spectator':
+        '''if role == 'Spectator':
             self.spectators.add(sid)
-            return True
-        elif Direction.from_str(role[0]) in self.rubber.taken_dirs():
+            return True'''
+        if Direction.from_str(role[0]) in self.rubber.taken_dirs():
             return False
         else:
             player = get_player_by_direction(self.rubber.players, Direction.from_str(role))
@@ -34,7 +36,7 @@ class Handler:
     def get_status(self):
         return {
             'players': {p['dir']: p['ready'] for p in self.player_dict.values()},
-            'spec_count': len(self.spectators),
+            #'spec_count': len(self.spectators),
             'game_running': self.game_running
         }
 
@@ -67,7 +69,7 @@ class Handler:
             for p in self.player_dict.values():
                 p['ready'] = False
             return True
-        self.spectators.discard(sid)
+        #self.spectators.discard(sid)
         return False
 
     def deal_cards(self) -> bool:
@@ -83,6 +85,6 @@ class Handler:
         if not self.valid_status(GameStatus.AUCTION) or self.player_dict[sid]['dir'] != self.rubber.playing_direction.abbreviation():
             return False
         self.rubber.bid(bid)
-        if self.valid_status(GameStatus.DEAL_CARDS):
+        if self.valid_status(GameStatus.DEAL_CARDS): #in case of 4 passes in a row at the start
             self.deal_cards()
         return True

@@ -91,7 +91,7 @@ class Game:
         self.play.play_card(played_card, current_player)
 
         if self.play.trick_over():
-            finished_trick = self.play.tricks_log[self.play.tricks_ew + self.play.tricks_ns - 1]
+            finished_trick = self.play.tricks_log[-1]
             winner = evaluate_trick_winner(finished_trick, self.play.trump_suit)
             winning_direction = select_player_by_winner(finished_trick, winner)
             if winning_direction in [Direction.NORTH, Direction.SOUTH]:
@@ -155,6 +155,16 @@ class Game:
                 legal.append(bid_str)
 
         return legal
+
+    def get_legal_cards_to_play(self) -> list[str]:
+        if self.game_status != GameStatus.PLAY or not self.play:
+            return []
+
+        player = get_player_by_direction(self.players, self.playing_direction)
+        return [
+            str(card) for card in player.hand.cards
+            if validate_card_usage(card, self.play.trick, player.hand)
+        ]
 
     def get_players(self) -> List['Player']:
         """Zwraca listę graczy."""

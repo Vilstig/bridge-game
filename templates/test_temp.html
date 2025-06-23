@@ -9,27 +9,37 @@
   <div id="role-selection">
     <h1>Select Your Role:</h1>
     <select id="role-dropdown"></select>
-    <button onclick="joinGame()">Join</button>
+    <button id="join-button" onclick="joinGame()" disabled>Join</button>
   </div>
 
 
   <div id="lobby" style="display: none;">
-    <h1>Your Role: <span id="your-role">-</span></h1>
+    <h1>Your Role: <span id="your-role">Spectator</span></h1>
     <button id="ready-btn" onclick="toggleReady()">Ready</button>
     <h2>Status:</h2>
     <ul id="player-status"></ul>
-    <p>Spectators: <span id="spectator-count">0</span></p>
+    <!--<p>Spectators: <span id="spectator-count">0</span></p>-->
   </div>
 
 
   <div id="auction" style="display: none;">
     <h1>Auction Phase</h1>
-    <h2>Your role: <span id="your-role-bid">-</span></h2>
+    <h2>Your role: <span id="your-role-bid">Spectator</span></h2>
     <h3>Turn: <span id="curr-turn">-</span></h3>
     <h4>Contract: <span id="contract">-</span></h4>
     <ul id="player-hand"></ul>
     <select id="bid-dropdown"></select>
     <button id="bid-btn" onclick="makeBid()" disabled>Make bid</button>
+  </div>
+
+
+  <div id="play" style="display: none;">
+    <h1>Play Phase</h1>
+    <h2>Your role: <span id="your-role-play">Spectator</span></h2>
+    <h3>Turn: <span id="curr-turn-play">-</span></h3>
+    <ul id="player-hand-play"></ul>
+    <select id="legal-cards"></select>
+    <button id="play-btn" onclick="playCard()" disabled>Play card</button>
   </div>
 
   <script src="/static/client.js"></script>

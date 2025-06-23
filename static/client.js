@@ -1,7 +1,14 @@
 const socket = io();
-myRole = null;
+myRole = 'Spectator';
+
+socket.on('lobby_phase', () => {
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('lobby').style.display = 'block';
+    document.getElementById('auction').style.display = 'none';
+});
 
 socket.on('available_roles', roles => {
+    document.getElementById('join-button').disabled = (roles.length==0);
     const dropdown = document.getElementById('role-dropdown');
     dropdown.innerHTML = ''; //clears all potential children
     roles.forEach(role => {
@@ -31,7 +38,7 @@ socket.on('update_lobby', status => {
         li.textContent = `${player}: ${status.players[player] ? 'Ready' : 'Not ready'}`;
         list.appendChild(li);
     }
-    document.getElementById('spectator-count').innerText = status.spec_count;
+    //document.getElementById('spectator-count').innerText = status.spec_count;
 });
 
 socket.on('game_paused', () => {
@@ -42,6 +49,7 @@ socket.on('game_paused', () => {
 
 socket.on('bidding_phase', () => {
     document.getElementById('your-role-bid').innerText = myRole;
+    document.getElementById('role-selection').style.display = 'none';
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('auction').style.display = 'block';
 });
