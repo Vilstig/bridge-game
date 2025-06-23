@@ -10,6 +10,8 @@ game = Game()
 @app.route('/')
 def index():
     """Strona główna gry."""
+    if game.game_status == GameStatus.DEAL_CARDS:
+        game.deal_cards()
     # Sprawdź, czy gracze mają już rozdane karty
     if not all(player.hand for player in game.players):
         hands = None  # Brak rąk do wyświetlenia
@@ -40,13 +42,6 @@ def index():
                            legal_bids=legal_bids,
                            legal_cards=legal_cards  # ← pass this into the template
                            )
-
-
-@app.route('/deal', methods=['POST'])
-def deal():
-    """Rozdanie kart."""
-    game.deal_cards()
-    return redirect(url_for('index'))
 
 
 @app.route('/bid', methods=['POST'])
