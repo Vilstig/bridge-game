@@ -160,6 +160,7 @@
         }
 
         .rotate-90 {
+            margin-top: -60px;
             transform: rotate(90deg);
         }
 
@@ -168,6 +169,7 @@
         }
 
         .rotate-270 {
+            margin-top: -60px;
             transform: rotate(270deg);
         }
 
@@ -324,7 +326,7 @@
                                     class="card-button"
                                     {% if card not in legal_cards %}disabled{% endif %}>
                                 <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                                     class="card rotate-90" style="margin-top: -60px">
+                                     class="card rotate-90" >
                             </button>
                         {% endfor %}
                     </div>
@@ -335,7 +337,7 @@
                     {% for card in hands[direction] %}
                         <button type="button" class="card-button" disabled>
                             <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-90"
-                                 style="margin-top: -60px">
+                                 >
                         </button>
                     {% endfor %}
                 </div>

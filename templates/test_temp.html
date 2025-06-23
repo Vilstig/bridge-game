@@ -1,51 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bridge Game</title>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Bridge Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
 
-  <div id="role-selection">
+<div id="role-selection">
     <h1>Select Your Role:</h1>
     <select id="role-dropdown"></select>
     <button id="join-button" onclick="joinGame()" disabled>Join</button>
-  </div>
+</div>
 
-
-  <div id="lobby" style="display: none;">
+<div id="lobby" style="display: none;">
     <h1>Your Role: <span id="your-role">Spectator</span></h1>
     <button id="ready-btn" onclick="toggleReady()">Ready</button>
     <h2>Status:</h2>
     <ul id="player-status"></ul>
-    <!--<p>Spectators: <span id="spectator-count">0</span></p>-->
+</div>
+
+<div id="auction" style="display: none;">
+  <h1>Auction Phase</h1>
+  <h2>Your role: <span id="your-role-bid">Spectator</span></h2>
+  <h3>Turn: <span id="curr-turn">-</span></h3>
+  <h4>Contract: <span id="contract">-</span></h4>
+
+  <div class="table-container">
+    <div id="auction-hands-view">
+      <!-- renderHands() wstawi ręce -->
+    </div>
+
+    <div class="center">
+      <table class="bidding-table" id="bidding-history"></table>
+      <form class="bidding-buttons" onsubmit="return false;">
+        <table id="bidding-buttons-table"></table>
+        <div class="special-actions">
+          <button type="button" id="bid-pass" onclick="makeBidFromButton('PASS')">PASS</button>
+          <button type="button" id="bid-x" onclick="makeBidFromButton('X')">X</button>
+          <button type="button" id="bid-xx" onclick="makeBidFromButton('XX')">XX</button>
+        </div>
+      </form>
+    </div>
   </div>
+</div>
 
 
-  <div id="auction" style="display: none;">
-    <h1>Auction Phase</h1>
-    <h2>Your role: <span id="your-role-bid">Spectator</span></h2>
-    <h3>Turn: <span id="curr-turn">-</span></h3>
-    <h4>Contract: <span id="contract">-</span></h4>
-    <ul id="player-hand"></ul>
-    <select id="bid-dropdown"></select>
-    <button id="bid-btn" onclick="makeBid()" disabled>Make bid</button>
-  </div>
-
-
-  <div id="play" style="display: none;">
+<div id="play" style="display: none;">
     <h1>Play Phase</h1>
     <h2>Your role: <span id="your-role-play">Spectator</span></h2>
     <h2>Turn: <span id="curr-turn-play">-</span></h2>
     <h3>Tricks NS: <span id="tricks-ns">-</span></h3>
     <h3>Tricks WE: <span id="tricks-we">-</span></h3>
-    <h3>Current trick: <ul id="curr-trick"></ul></h3>
-    <h5>Hands <ul id="hands-view"></ul></h5>
-    <select id="legal-cards"></select>
-    <button id="play-btn" onclick="playCard()" disabled>Play card</button>
-  </div>
 
-  <div id="score" style="display: none;">
+    <div class="table-container" id="hands-view">
+        <!-- ręce renderowane dynamicznie -->
+    </div>
+
+    <div id="trick-center" class="center-grid" style="margin-top: 30px;"></div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <select id="legal-cards"></select>
+        <button id="play-btn" onclick="playCard()" disabled>Play card</button>
+    </div>
+</div>
+
+<div id="score" style="display: none;">
     <h1>Round scores</h1>
     <h3>Tricks NS: <span id="tricks-ns-score">-</span></h3>
     <h3>Tricks WE: <span id="tricks-we-score">-</span></h3>
@@ -53,15 +73,15 @@
     <span id="score-display">-</span>
     <br>
     <button id="end-scores-btn" onclick="endScores()">Continue</button>
-  </div>
+</div>
 
-  <div id="game-over" style="display: none;">
+<div id="game-over" style="display: none;">
     <h1>Game finished</h1>
-    <h2>Final scores: </h2> <br>
-    <span id="final-score-display">-</span> <br>
+    <h2>Final scores: </h2><br>
+    <span id="final-score-display">-</span><br>
     <h3>Thanks for playing!</h3>
-  </div>
+</div>
 
-  <script src="/static/client.js"></script>
+<script src="/static/client.js"></script>
 </body>
 </html>
