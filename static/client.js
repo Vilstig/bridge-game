@@ -1,12 +1,7 @@
 const socket = io();
 myRole = 'Spectator';
 
-socket.on('lobby_phase', () => {
-    document.getElementById('role-selection').style.display = 'none';
-    document.getElementById('lobby').style.display = 'block';
-    document.getElementById('auction').style.display = 'none';
-    document.getElementById('play').style.display = 'none';
-});
+socket.on('lobby_phase', () => lobbyPhase());
 
 socket.on('available_roles', roles => {
     document.getElementById('join-button').disabled = (roles.length==0);
@@ -27,10 +22,7 @@ socket.on('action_failed', msg =>{
 socket.on('role_assigned', role => {
     myRole = role;
     document.getElementById('your-role').innerText = role;
-    document.getElementById('role-selection').style.display = 'none';
-    document.getElementById('lobby').style.display = 'block';
-    document.getElementById('auction').style.display = 'none';
-    document.getElementById('play').style.display = 'none';
+    lobbyPhase();
 });
 
 socket.on('update_lobby', status => {
@@ -56,6 +48,8 @@ socket.on('bidding_phase', () => {
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('auction').style.display = 'block';
     document.getElementById('play').style.display = 'none';
+    document.getElementById('score').style.display = 'none';
+    document.getElementById('game-over').style.display = 'none';
 });
 
 socket.on('update_auction', (turn, contract, bids) => {
@@ -82,6 +76,8 @@ socket.on('play_phase', () => {
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('auction').style.display = 'none';
     document.getElementById('play').style.display = 'block';
+    document.getElementById('score').style.display = 'none';
+    document.getElementById('game-over').style.display = 'none';
 });
 
 socket.on('update_play', (turn, trick_ns, trick_we, trick_str) => {
@@ -107,6 +103,31 @@ socket.on('update_hand', (legal_hand, turn) => {
 
 socket.on('update_hands_view', view => {
     document.getElementById('hands-view').innerText = view;
+});
+
+socket.on('score_phase', () => {
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('lobby').style.display = 'none';
+    document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
+    document.getElementById('score').style.display = 'block';
+    document.getElementById('game-over').style.display = 'none';
+});
+
+socket.on('update_score', (trick_ns, trick_we, contract, scores) => {
+    document.getElementById('tricks-ns-score').innerText = trick_ns;
+    document.getElementById('tricks-we-score').innerText = trick_we;
+    document.getElementById('contract-score').innerText = contract;
+    document.getElementById('score-display').innerText = scores;
+});
+
+socket.on('game_finished', () => {
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('lobby').style.display = 'none';
+    document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
+    document.getElementById('score').style.display = 'none';
+    document.getElementById('game-over').style.display = 'block';
 })
 
 function joinGame(){
@@ -128,4 +149,17 @@ function makeBid(){
 function playCard(){
     const card = document.getElementById('legal-cards').value;
     socket.emit('play_card', card);
+}
+
+function endScores(){
+    socket.emit('end_scores');
+}
+
+function lobbyPhase() {
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('lobby').style.display = 'block';
+    document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
+    document.getElementById('score').style.display = 'none';
+    document.getElementById('game-over').style.display = 'none';
 }

@@ -23,6 +23,12 @@ def handle_connect():
     elif handler.get_game_status_str() == 'PLAY':
         emit('play_phase')
         update_play_new_guest(sid)
+    elif handler.get_game_status_str() == 'DISPLAY_SCORE':
+        emit('score_phase')
+        update_score(sid)
+    elif handler.get_game_status_str() == 'GAME_OVER':
+        emit('game_finished')
+        update_game_over(sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -58,6 +64,12 @@ def toggle_ready():
         elif handler.get_game_status_str() == 'PLAY':
             emit('play_phase', broadcast=True)
             update_play()
+        elif handler.get_game_status_str() == 'DISPLAY_SCORE':
+            emit('score_phase', broadcast=True)
+            update_score()
+        elif handler.get_game_status_str() == 'GAME_OVER':
+            emit('game_finished', broadcast=True)
+            update_game_over()
 
 def update_lobby():
     emit('update_lobby', handler.get_status(), broadcast=True)
@@ -102,7 +114,36 @@ def update_play_new_guest(sid):
 @socketio.on('play_card')
 def play_card(card):
     handler.play_card(card)
+    if handler.get_game_status_str() == 'DISPLAY_SCORE':
+        emit('score_phase', broadcast=True)
+        update_score()
+        return
+    elif handler.get_game_status_str() == 'GAME_OVER':
+        emit('game_finished', broadcast=True)
+        return
     update_play()
+
+#=======================SCORE================================
+def update_score(sid=None):
+    score_status = handler.score_status()
+    if sid:
+        emit('update_score', (score_status['trick_count'][0], score_status['trick_count'][1], score_status['contract'], score_status['scores']), room=sid)
+    else:
+        emit('update_score', (score_status['trick_count'][0], score_status['trick_count'][1], score_status['contract'], score_status['scores']), broadcast=True)
+
+@socketio.on('end_scores')
+def end_scores():
+    handler.end_scores()
+    emit('bidding_phase', broadcast=True)
+    update_auction()
+
+#=============================GAME OVER=============================
+def update_game_over(sid=None):
+    game_over_status = handler.game_over_status()
+    if sid:
+        emit('update_game_over', game_over_status, room=sid)
+    else:
+        emit('update_game_over', game_over_status, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000) # debug=True for debug info

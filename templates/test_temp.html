@@ -45,6 +45,23 @@
     <button id="play-btn" onclick="playCard()" disabled>Play card</button>
   </div>
 
+  <div id="score" style="display: none;">
+    <h1>Round scores</h1>
+    <h3>Tricks NS: <span id="tricks-ns-score">-</span></h3>
+    <h3>Tricks WE: <span id="tricks-we-score">-</span></h3>
+    <h4>Contract: <span id="contract-score">-</span></h4>
+    <span id="score-display">-</span>
+    <br>
+    <button id="end-scores-btn" onclick="endScores()">Continue</button>
+  </div>
+
+  <div id="game-over" style="display: none;">
+    <h1>Game finished</h1>
+    <h2>Final scores: </h2> <br>
+    <span id="final-score-display">-</span> <br>
+    <h3>Thanks for playing!</h3>
+  </div>
+
   <script src="/static/client.js"></script>
 </body>
 </html>

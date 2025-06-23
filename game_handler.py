@@ -139,3 +139,17 @@ class Handler:
 
     def play_card(self, card: str):
         self.rubber.play_card(card)
+
+    def score_status(self):
+        return {
+            'trick_count': self.rubber.get_tricks_count(),
+            'contract': str(self.rubber.get_contract()),
+            'scores': str(self.rubber.get_current_scores())
+        }
+
+    def end_scores(self):
+        self.rubber.prepare_new_deal()
+        self.rubber.deal_cards()
+
+    def game_over_status(self):
+        return str(self.rubber.get_current_scores())
