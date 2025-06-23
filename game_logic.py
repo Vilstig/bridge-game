@@ -42,13 +42,17 @@ class Game:
         self.game_status = GameStatus.DEAL_CARDS  # 'Deal cards', 'Auction', 'Play, 'Display score', 'Game over'
         self.game_starter_direction = Direction.NORTH
         self.playing_direction = None
-        self.deal_cards()
+        self.visible_direction = None
+        #self.deal_cards()
 
-    def _init_players(self) -> None:
-        player1 = Player('Filip', None, 'N')
-        player2 = Player('Dorota', None, 'E')
-        player3 = Player('Tomek', None, 'S')
-        player4 = Player('Adam', None, 'W')
+    def taken_dirs(self):
+        return [p.direction for p in self.players if p.name != '']
+
+    def _init_players(self):
+        player1 = Player('', None, 'N')
+        player2 = Player('', None, 'E')
+        player3 = Player('', None, 'S')
+        player4 = Player('', None, 'W')
 
         self.players = [player1, player2, player3, player4]
 
@@ -87,6 +91,9 @@ class Game:
 
         played_card = current_player.play_card(card)
         self.play.play_card(played_card, current_player)
+
+        if not self.visible_direction:
+            self.visible_direction = self.get_contract().declarer.partner()
 
         if self.play.trick_over():
             finished_trick = self.play.tricks_log[-1]
