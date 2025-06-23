@@ -185,9 +185,10 @@
     <!-- North -->
     <div class="north">
         <strong>North</strong>
+        {% set direction = 'N' %}
+        {% if game.playing_direction.abbreviation() == direction %}
         <form action="{{ url_for('play') }}" method="post">
             <div class="card-hand horizontal">
-                {% set direction = 'N' %}
                 {% for card in hands[direction] %}
                     <button type="submit" name="card" value="{{ card }}"
                             class="card-button"
@@ -198,14 +199,24 @@
                 {% endfor %}
             </div>
         </form>
+        {% else %}
+            <div class="card-hand horizontal">
+                {% for card in hands[direction] %}
+                    <button type="button" class="card-button" disabled>
+                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-180">
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <!-- South -->
     <div class="south">
         <strong>South</strong>
+        {% set direction = 'S' %}
+        {% if game.playing_direction.abbreviation() == direction %}
         <form action="{{ url_for('play') }}" method="post">
             <div class="card-hand horizontal">
-                {% set direction = 'S' %}
                 {% for card in hands[direction] %}
                     <button type="submit" name="card" value="{{ card }}"
                             class="card-button"
@@ -216,43 +227,75 @@
                 {% endfor %}
             </div>
         </form>
+        {% else %}
+            <!-- show just card backs for other directions -->
+            <div class="card-hand horizontal">
+                {% for card in hands[direction] %}
+                    <button type="button" class="card-button" disabled>
+                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-0">
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <!-- West -->
     <div class="west">
         <strong>West</strong>
+        {% set direction = 'W' %}
+        {% if game.playing_direction.abbreviation() == direction %}
         <form action="{{ url_for('play') }}" method="post">
             <div class="card-hand vertical">
-                {% set direction = 'W' %}
                 {% for card in hands[direction] %}
                     <button type="submit" name="card" value="{{ card }}"
                             class="card-button"
                             {% if card not in legal_cards %}disabled{% endif %}>
                         <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-90" style="margin-top: -60px;">
+                             class="card rotate-90" style="margin-top: -60px">
                     </button>
                 {% endfor %}
             </div>
         </form>
+        {% else %}
+            <!-- show just card backs for other directions -->
+            <div class="card-hand vertical">
+                {% for card in hands[direction] %}
+                    <button type="button" class="card-button" disabled>
+                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-90" style="margin-top: -60px">
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
 
     <!-- East -->
     <div class="east">
         <strong>East</strong>
+        {% set direction = 'E' %}
+        {% if game.playing_direction.abbreviation() == direction %}
         <form action="{{ url_for('play') }}" method="post">
             <div class="card-hand vertical">
-                {% set direction = 'E' %}
                 {% for card in hands[direction] %}
                     <button type="submit" name="card" value="{{ card }}"
                             class="card-button"
                             {% if card not in legal_cards %}disabled{% endif %}>
                         <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-270" style="margin-top: -60px;">
+                             class="card rotate-270" style="margin-top: -60px">
                     </button>
                 {% endfor %}
             </div>
         </form>
+        {% else %}
+            <!-- show just card backs for other directions -->
+            <div class="card-hand vertical">
+                {% for card in hands[direction] %}
+                    <button type="button" class="card-button" disabled>
+                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-270" style="margin-top: -60px">
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <!-- Bidding Table & Buttons -->
