@@ -1,0 +1,1 @@
+Dodać zmniejszający overlapping dla kart wraz z redukcją ilości kart w rękach (albo przewidziany stały rozmiar okna dla kart, w którym mają się zmieścić)

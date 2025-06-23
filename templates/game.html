@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
         }
+
         .table-container {
             display: grid;
             grid-template-areas:
@@ -41,21 +42,85 @@
             align-items: center;
         }
 
-        .card-hand img.card {
-            width: 80px;
-            margin-left: -40px;
-            z-index: 1;
-            transition: transform 0.2s;
+        .card-button {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative; /* Required for z-index stacking */
         }
 
-        .card-hand img.card:first-child {
-            margin-left: 0;
+        .card-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
         }
+
+        .play-phase .card-button[disabled] img.card {
+            filter: brightness(80%);
+        }
+
+        img.card {
+            width: 100px;
+            transition: transform 0.2s;
+            z-index: 1;
+        }
+
+        .card-hand.horizontal .card-button:not(:first-child) {
+            margin-left: -60px;
+        }
+
+        .card-hand.vertical .card-button:not(:first-child) {
+            margin-top: -36px;
+        }
+
+        .east .card-hand.vertical {
+            flex-direction: column-reverse;
+        }
+
+        /* Z-index stacking for overlapping cards */
+        .card-hand .card-button:nth-child(1)  { z-index: 1; }
+        .card-hand .card-button:nth-child(2)  { z-index: 2; }
+        .card-hand .card-button:nth-child(3)  { z-index: 3; }
+        .card-hand .card-button:nth-child(4)  { z-index: 4; }
+        .card-hand .card-button:nth-child(5)  { z-index: 5; }
+        .card-hand .card-button:nth-child(6)  { z-index: 6; }
+        .card-hand .card-button:nth-child(7)  { z-index: 7; }
+        .card-hand .card-button:nth-child(8)  { z-index: 8; }
+        .card-hand .card-button:nth-child(9)  { z-index: 9; }
+        .card-hand .card-button:nth-child(10) { z-index: 10; }
+        .card-hand .card-button:nth-child(11) { z-index: 11; }
+        .card-hand .card-button:nth-child(12) { z-index: 12; }
+        .card-hand .card-button:nth-child(13) { z-index: 13; }
 
         .rotate-0   { transform: rotate(0deg); }
         .rotate-90  { transform: rotate(90deg); }
         .rotate-180 { transform: rotate(180deg); }
         .rotate-270 { transform: rotate(270deg); }
+
+        /* Optional center layout base */
+        .center-grid {
+            display: grid;
+            grid-template-areas:
+                "top-left top-center top-right"
+                "mid-left mid-center mid-right"
+                "bot-left bot-center bot-right";
+            grid-template-columns: 1fr auto 1fr;
+            grid-template-rows: auto auto auto;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .center-grid > div {
+            position: relative;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
 
         table.bidding-table {
             background: #2a472d;
@@ -74,6 +139,7 @@
             text-align: center;
             vertical-align: middle;
             padding: 5px;
+            font-size: 18px;
         }
 
         .bidding-buttons table {
@@ -108,46 +174,6 @@
             height: 36px;
             margin: 4px;
         }
-
-        h2 {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .card-button {
-            background: none;
-            border: none;
-            padding: 0;
-            margin: 0;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
-        }
-        .play-phase .card-button[disabled] img.card {
-            filter: brightness(80%);
-        }
-        img.card {
-            width: 80px;
-        }
-        .center-grid {
-            display: grid;
-            grid-template-areas:
-                "top-left top-center top-right"
-                "mid-left mid-center mid-right"
-                "bot-left bot-center bot-right";
-            grid-template-columns: 1fr auto 1fr;
-            grid-template-rows: auto auto auto;
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        .center-grid > div {
-            position: relative;
-        }
-
     </style>
 </head>
 <body class="{% if game.game_status.name == 'PLAY' %}play-phase{% endif %}">
@@ -232,7 +258,6 @@
     <!-- Bidding Table & Buttons -->
     <div class="center">
         {% if game.game_status.name == 'AUCTION' %}
-        <h3 style="color: #2a472d;">Licytacja</h3>
         <table class="bidding-table">
             <tr>
                 {% for dir in bidding_order %}
@@ -301,15 +326,6 @@
 
             <!-- CENTER: Nested grid -->
             <div class="center-grid" style="grid-area: center;">
-                <!-- Arrow -->
-                <div style="font-size: 36px; transform:
-                    rotate({% if game.playing_direction.abbreviation() == 'S' %}180deg
-                           {% elif game.playing_direction.abbreviation() == 'W' %}270deg
-                           {% elif game.playing_direction.abbreviation() == 'E' %}90deg
-                           {% else %}0deg{% endif %});
-                    margin-bottom: 10px;">
-                    ↑
-                </div>
 
                 <!-- Trick cards -->
                 <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
@@ -330,7 +346,7 @@
                              style="position: absolute;
                                     left: calc(50% + {{ offset_x }}px - 40px);
                                     top: calc(50% + {{ offset_y }}px - 60px);
-                                    width: 80px;
+                                    width: 100px;
                                     z-index: 10;">
                     {% endfor %}
                 </div>
@@ -344,19 +360,28 @@
 {% if game.game_status.name == 'PLAY' %}
 <div style="
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 80px;
+    right: 160px;
     background-color: rgba(255, 255, 255, 0.12);
     padding: 12px 16px;
     border-radius: 10px;
-    font-size: 32px;
+    font-size: 40px;
     color: white;
     z-index: 1000;
     line-height: 1.5;
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
 ">
-    <div><strong>Contract:</strong> {{ game.auction.contract }}</div>
+    {% set contract = game.auction.contract %}
+        {% set suit_map = {'C': '♣', 'D': '♦', 'H': '♥', 'S': '♠', 'NT': 'NT'} %}
+        {% set red_suits = ['D', 'H'] %}
+        Contract:
+        {{ contract.level }}
+        <span style="color: {{ 'red' if contract.suit.abbreviation() in red_suits else 'black' }}">
+          {{ suit_map[contract.suit.abbreviation()] }}
+        </span>
+        {{ 'X' * contract.doubled }}
+        {{ contract.declarer.abbreviation() }}
     <div><strong>Tricks NS:</strong> {{ game.play.tricks_ns }}</div>
     <div><strong>Tricks EW:</strong> {{ game.play.tricks_ew }}</div>
 </div>
