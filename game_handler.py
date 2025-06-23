@@ -1,7 +1,3 @@
-from operator import truediv
-from random import shuffle
-from typing import Optional
-
 from core.deal_enums import GameStatus, Direction, Suit
 from game_logic import Game, Player, get_player_by_direction
 
@@ -88,3 +84,55 @@ class Handler:
         if self.valid_status(GameStatus.DEAL_CARDS): #in case of 4 passes in a row at the start
             self.deal_cards()
         return True
+
+    def play_status(self):
+        def trick_str() -> str:
+            trick = self.rubber.get_current_trick()
+            trick_str = ' | '.join([f'{direction.abbreviation()}: {str(card)}' for (direction, card) in trick])
+            return trick_str
+        turn = self.rubber.playing_direction.abbreviation()
+        trick_count = self.rubber.get_tricks_count()
+        return {
+            'turn': turn,
+            'trick_count': trick_count,
+            'trick_str': trick_str(),
+            'player_views': self.player_hands_str()['player_views']
+        }
+
+    def player_hand_update(self):
+        return {
+            'legal_hand': self.rubber.get_legal_cards_to_play(),
+            'player_turns': self.player_turns()
+        }
+
+    def player_hands_str(self):
+        player_hands = self.get_player_hands()
+        vis_dir = self.rubber.playing_direction.abbreviation()
+        vis_partner_dir = self.rubber.playing_direction.partner().abbreviation()
+        vis_sid = ''
+        vis_partner_sid = ''
+        for sid in self.player_dict:
+            if self.player_dict[sid]['dir'] == vis_dir:
+                vis_sid = sid
+            elif self.player_dict[sid]['dir'] == vis_partner_dir:
+                vis_partner_sid = sid
+
+        player_views = {}
+        for sid in self.player_dict:
+            card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
+            if sid == vis_sid:
+                card_str += f'{vis_partner_dir}: {player_hands[vis_partner_sid]}'
+            else:
+                card_str += f'{vis_dir}: {player_hands[vis_sid]}'
+            player_views[sid] = card_str
+
+
+        return{
+            'hands': player_hands,
+            'vis_sid': vis_sid,
+            'vis_partner_sid': vis_partner_sid,
+            'player_views': player_views
+        }
+
+    def play_card(self, card: str):
+        self.rubber.play_card(card)

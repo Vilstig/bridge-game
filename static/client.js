@@ -5,6 +5,7 @@ socket.on('lobby_phase', () => {
     document.getElementById('role-selection').style.display = 'none';
     document.getElementById('lobby').style.display = 'block';
     document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
 });
 
 socket.on('available_roles', roles => {
@@ -28,6 +29,8 @@ socket.on('role_assigned', role => {
     document.getElementById('your-role').innerText = role;
     document.getElementById('role-selection').style.display = 'none';
     document.getElementById('lobby').style.display = 'block';
+    document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
 });
 
 socket.on('update_lobby', status => {
@@ -52,6 +55,7 @@ socket.on('bidding_phase', () => {
     document.getElementById('role-selection').style.display = 'none';
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('auction').style.display = 'block';
+    document.getElementById('play').style.display = 'none';
 });
 
 socket.on('update_auction', (turn, contract, bids) => {
@@ -72,6 +76,39 @@ socket.on('player_update_auction', (hand, turn) => {
     document.getElementById('bid-btn').disabled = !turn;
 });
 
+socket.on('play_phase', () => {
+    document.getElementById('your-role-play').innerText = myRole;
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('lobby').style.display = 'none';
+    document.getElementById('auction').style.display = 'none';
+    document.getElementById('play').style.display = 'block';
+});
+
+socket.on('update_play', (turn, trick_ns, trick_we, trick_str) => {
+    document.getElementById('curr-turn-play').innerText = turn;
+    document.getElementById('tricks-ns').innerText = trick_ns;
+    document.getElementById('tricks-we').innerText = trick_we;
+    document.getElementById('curr-trick').innerText = trick_str;
+});
+
+socket.on('update_hand', (legal_hand, turn) => {
+    document.getElementById('play-btn').disabled = !turn;
+    const dropdown = document.getElementById('legal-cards');
+    dropdown.innerHTML = '';
+    if(turn) {
+        legal_hand.forEach(card => {
+            const opt = document.createElement('option');
+            opt.value = card;
+            opt.text = card;
+            dropdown.appendChild(opt)
+        });
+    }
+});
+
+socket.on('update_hands_view', view => {
+    document.getElementById('hands-view').innerText = view;
+})
+
 function joinGame(){
     const role = document.getElementById('role-dropdown').value;
     socket.emit('choose_role', role);
@@ -86,4 +123,9 @@ function toggleReady(){
 function makeBid(){
     const bid = document.getElementById('bid-dropdown').value;
     socket.emit('make_bid', bid);
+}
+
+function playCard(){
+    const card = document.getElementById('legal-cards').value;
+    socket.emit('play_card', card);
 }

@@ -67,6 +67,7 @@ def make_bid(bid):
     update_auction()
     if handler.get_game_status_str() == 'PLAY':
         emit('play_phase', broadcast=True)
+        update_play()
 
 def update_auction():
     auction_status = handler.auction_status()
@@ -77,6 +78,21 @@ def update_auction():
 def update_auction_new_guest(sid):
     auction_status = handler.auction_status()
     emit('update_auction', (auction_status['turn'], auction_status['contract'], auction_status['bids']), room=sid)
+
+#===========================PLAY====================================
+def update_play():
+    play_status = handler.play_status()
+    hand_status = handler.player_hand_update()
+    emit('update_play', (play_status['turn'], play_status['trick_count'][0], play_status['trick_count'][1], play_status['trick_str']), broadcast=True)
+    for sid in hand_status['player_turns']:
+        emit('update_hand', (hand_status['legal_hand'], hand_status['player_turns'][sid]), room=sid)
+    for sid in play_status['player_views']:
+        emit('update_hands_view', play_status['player_views'][sid], room=sid)
+
+@socketio.on('play_card')
+def play_card(card):
+    handler.play_card(card)
+    update_play()
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000) # debug=True for debug info
