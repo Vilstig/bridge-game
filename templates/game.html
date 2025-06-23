@@ -25,22 +25,45 @@
             margin-top: 20px;
         }
 
-        .north { grid-area: north; text-align: center; }
-        .south { grid-area: south; text-align: center; }
-        .east  { grid-area: east;  text-align: center; }
-        .west  { grid-area: west;  text-align: center; }
-        .center { grid-area: center; text-align: center; }
+        .north {
+            grid-area: north;
+            text-align: center;
+        }
+
+        .south {
+            grid-area: south;
+            text-align: center;
+        }
+
+        .east {
+            grid-area: east;
+            text-align: center;
+        }
+
+        .west {
+            grid-area: west;
+            text-align: center;
+        }
+
+        .center {
+            grid-area: center;
+            text-align: center;
+        }
 
         .card-hand {
             display: flex;
             justify-content: center;
             margin: 10px auto;
+            min-height: 120px; /* zachowuje miejsce nawet gdy pusto */
+            min-width: 500px;  /* można dostosować */
         }
-
         .card-hand.vertical {
             flex-direction: column;
             align-items: center;
+            min-height: 400px;
+            min-width: 100px;
         }
+
 
         .card-button {
             background: none;
@@ -80,24 +103,73 @@
         }
 
         /* Z-index stacking for overlapping cards */
-        .card-hand .card-button:nth-child(1)  { z-index: 1; }
-        .card-hand .card-button:nth-child(2)  { z-index: 2; }
-        .card-hand .card-button:nth-child(3)  { z-index: 3; }
-        .card-hand .card-button:nth-child(4)  { z-index: 4; }
-        .card-hand .card-button:nth-child(5)  { z-index: 5; }
-        .card-hand .card-button:nth-child(6)  { z-index: 6; }
-        .card-hand .card-button:nth-child(7)  { z-index: 7; }
-        .card-hand .card-button:nth-child(8)  { z-index: 8; }
-        .card-hand .card-button:nth-child(9)  { z-index: 9; }
-        .card-hand .card-button:nth-child(10) { z-index: 10; }
-        .card-hand .card-button:nth-child(11) { z-index: 11; }
-        .card-hand .card-button:nth-child(12) { z-index: 12; }
-        .card-hand .card-button:nth-child(13) { z-index: 13; }
+        .card-hand .card-button:nth-child(1) {
+            z-index: 1;
+        }
 
-        .rotate-0   { transform: rotate(0deg); }
-        .rotate-90  { transform: rotate(90deg); }
-        .rotate-180 { transform: rotate(180deg); }
-        .rotate-270 { transform: rotate(270deg); }
+        .card-hand .card-button:nth-child(2) {
+            z-index: 2;
+        }
+
+        .card-hand .card-button:nth-child(3) {
+            z-index: 3;
+        }
+
+        .card-hand .card-button:nth-child(4) {
+            z-index: 4;
+        }
+
+        .card-hand .card-button:nth-child(5) {
+            z-index: 5;
+        }
+
+        .card-hand .card-button:nth-child(6) {
+            z-index: 6;
+        }
+
+        .card-hand .card-button:nth-child(7) {
+            z-index: 7;
+        }
+
+        .card-hand .card-button:nth-child(8) {
+            z-index: 8;
+        }
+
+        .card-hand .card-button:nth-child(9) {
+            z-index: 9;
+        }
+
+        .card-hand .card-button:nth-child(10) {
+            z-index: 10;
+        }
+
+        .card-hand .card-button:nth-child(11) {
+            z-index: 11;
+        }
+
+        .card-hand .card-button:nth-child(12) {
+            z-index: 12;
+        }
+
+        .card-hand .card-button:nth-child(13) {
+            z-index: 13;
+        }
+
+        .rotate-0 {
+            transform: rotate(0deg);
+        }
+
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        .rotate-270 {
+            transform: rotate(270deg);
+        }
 
         /* Optional center layout base */
         .center-grid {
@@ -151,10 +223,10 @@
         }
 
         .bidding-buttons button {
-            width: 60px;
-            height: 36px;
+            width: 90px;
+            height: 54px;
             margin: 2px;
-            font-size: 14px;
+            font-size: 18px;
             border-radius: 6px;
             border: none;
         }
@@ -170,9 +242,10 @@
         }
 
         .special-actions button {
-            width: 80px;
-            height: 36px;
-            margin: 4px;
+            width: 120px;
+            height: 54px;
+            margin: 20px;
+            font-size: 28px;
         }
     </style>
 </head>
@@ -181,182 +254,184 @@
 <h2>Status: {{ game.game_status.name }}</h2>
 
 {% if hands %}
-<div class="table-container">
-    <!-- North -->
-    <div class="north">
-        <strong>North</strong>
-        {% set direction = 'N' %}
-        {% if game.playing_direction.abbreviation() == direction %}
-        <form action="{{ url_for('play') }}" method="post">
-            <div class="card-hand horizontal">
-                {% for card in hands[direction] %}
-                    <button type="submit" name="card" value="{{ card }}"
-                            class="card-button"
-                            {% if card not in legal_cards %}disabled{% endif %}>
-                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-180">
-                    </button>
-                {% endfor %}
-            </div>
-        </form>
-        {% else %}
-            <div class="card-hand horizontal">
-                {% for card in hands[direction] %}
-                    <button type="button" class="card-button" disabled>
-                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-180">
-                    </button>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- South -->
-    <div class="south">
-        <strong>South</strong>
-        {% set direction = 'S' %}
-        {% if game.playing_direction.abbreviation() == direction %}
-        <form action="{{ url_for('play') }}" method="post">
-            <div class="card-hand horizontal">
-                {% for card in hands[direction] %}
-                    <button type="submit" name="card" value="{{ card }}"
-                            class="card-button"
-                            {% if card not in legal_cards %}disabled{% endif %}>
-                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-0">
-                    </button>
-                {% endfor %}
-            </div>
-        </form>
-        {% else %}
-            <!-- show just card backs for other directions -->
-            <div class="card-hand horizontal">
-                {% for card in hands[direction] %}
-                    <button type="button" class="card-button" disabled>
-                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-0">
-                    </button>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- West -->
-    <div class="west">
-        <strong>West</strong>
-        {% set direction = 'W' %}
-        {% if game.playing_direction.abbreviation() == direction %}
-        <form action="{{ url_for('play') }}" method="post">
-            <div class="card-hand vertical">
-                {% for card in hands[direction] %}
-                    <button type="submit" name="card" value="{{ card }}"
-                            class="card-button"
-                            {% if card not in legal_cards %}disabled{% endif %}>
-                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-90" style="margin-top: -60px">
-                    </button>
-                {% endfor %}
-            </div>
-        </form>
-        {% else %}
-            <!-- show just card backs for other directions -->
-            <div class="card-hand vertical">
-                {% for card in hands[direction] %}
-                    <button type="button" class="card-button" disabled>
-                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-90" style="margin-top: -60px">
-                    </button>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-
-    <!-- East -->
-    <div class="east">
-        <strong>East</strong>
-        {% set direction = 'E' %}
-        {% if game.playing_direction.abbreviation() == direction %}
-        <form action="{{ url_for('play') }}" method="post">
-            <div class="card-hand vertical">
-                {% for card in hands[direction] %}
-                    <button type="submit" name="card" value="{{ card }}"
-                            class="card-button"
-                            {% if card not in legal_cards %}disabled{% endif %}>
-                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-270" style="margin-top: -60px">
-                    </button>
-                {% endfor %}
-            </div>
-        </form>
-        {% else %}
-            <!-- show just card backs for other directions -->
-            <div class="card-hand vertical">
-                {% for card in hands[direction] %}
-                    <button type="button" class="card-button" disabled>
-                        <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-270" style="margin-top: -60px">
-                    </button>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Bidding Table & Buttons -->
-    <div class="center">
-        {% if game.game_status.name == 'AUCTION' %}
-        <table class="bidding-table">
-            <tr>
-                {% for dir in bidding_order %}
-                    <th>{{ dir }}</th>
-                {% endfor %}
-            </tr>
-            {% for row in bidding_rounds %}
-                <tr>
-                    {% for bid in row %}
-                        <td>
-                            {% if bid == '?' %}
-                                <strong style="font-size: 20px;">?</strong>
-                            {% else %}
-                                {{ bid }}
-                            {% endif %}
-                        </td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-
-
-        <form action="{{ url_for('bid') }}" method="post" class="bidding-buttons">
-            <table>
-                {% for level in range(1, 8) %}
-                <tr>
-                    {% for suit, icon in [('C','♣'), ('D','♦'), ('H','♥'), ('S','♠'), ('NT','NT')] %}
-                        {% set code = level|string + suit %}
-                        <td>
-                            <button type="submit" name="bid" value="{{ code }}"
-                                    {% if code not in legal_bids %} disabled {% endif %}
-                                    style="font-size: 28px;
-                                           color: {% if suit in ['H','D'] %}red{% else %}black{% endif %};">
-                                {{ level }}{{ icon }}
+    <div class="table-container">
+        <!-- North -->
+        <div class="north">
+            <strong>North</strong>
+            {% set direction = 'N' %}
+            {% if game.playing_direction.abbreviation() == direction %}
+                <form action="{{ url_for('play') }}" method="post">
+                    <div class="card-hand horizontal">
+                        {% for card in hands[direction] %}
+                            <button type="submit" name="card" value="{{ card }}"
+                                    class="card-button"
+                                    {% if card not in legal_cards %}disabled{% endif %}>
+                                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                                     class="card rotate-180">
                             </button>
-                        </td>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <div class="card-hand horizontal">
+                    {% for card in hands[direction] %}
+                        <button type="button" class="card-button" disabled>
+                            <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-180">
+                        </button>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </table>
+                </div>
+            {% endif %}
+        </div>
 
-            <div class="special-actions">
-                {% for action in ['PASS', 'X', 'XX'] %}
-                    <button type="submit" name="bid" value="{{ action }}"
-                        {% if action not in legal_bids %} disabled {% endif %}>
-                        {{ action }}
-                    </button>
-                {% endfor %}
-            </div>
-        </form>
+        <!-- South -->
+        <div class="south">
+            <strong>South</strong>
+            {% set direction = 'S' %}
+            {% if game.playing_direction.abbreviation() == direction %}
+                <form action="{{ url_for('play') }}" method="post">
+                    <div class="card-hand horizontal">
+                        {% for card in hands[direction] %}
+                            <button type="submit" name="card" value="{{ card }}"
+                                    class="card-button"
+                                    {% if card not in legal_cards %}disabled{% endif %}>
+                                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                                     class="card rotate-0">
+                            </button>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <!-- show just card backs for other directions -->
+                <div class="card-hand horizontal">
+                    {% for card in hands[direction] %}
+                        <button type="button" class="card-button" disabled>
+                            <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-0">
+                        </button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
-        {% endif %}
+        <!-- West -->
+        <div class="west">
+            <strong>West</strong>
+            {% set direction = 'W' %}
+            {% if game.playing_direction.abbreviation() == direction %}
+                <form action="{{ url_for('play') }}" method="post">
+                    <div class="card-hand vertical">
+                        {% for card in hands[direction] %}
+                            <button type="submit" name="card" value="{{ card }}"
+                                    class="card-button"
+                                    {% if card not in legal_cards %}disabled{% endif %}>
+                                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                                     class="card rotate-90" style="margin-top: -60px">
+                            </button>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <!-- show just card backs for other directions -->
+                <div class="card-hand vertical">
+                    {% for card in hands[direction] %}
+                        <button type="button" class="card-button" disabled>
+                            <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-90"
+                                 style="margin-top: -60px">
+                        </button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
-        {% if game.game_status.name == 'PLAY' %}
-        <!-- Enhanced PLAY area -->
-        <div style="margin: 20px auto; position: relative; display: grid; grid-template-areas:
+
+        <!-- East -->
+        <div class="east">
+            <strong>East</strong>
+            {% set direction = 'E' %}
+            {% if game.playing_direction.abbreviation() == direction %}
+                <form action="{{ url_for('play') }}" method="post">
+                    <div class="card-hand vertical">
+                        {% for card in hands[direction] %}
+                            <button type="submit" name="card" value="{{ card }}"
+                                    class="card-button"
+                                    {% if card not in legal_cards %}disabled{% endif %}>
+                                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                                     class="card rotate-270" style="margin-top: -60px">
+                            </button>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <!-- show just card backs for other directions -->
+                <div class="card-hand vertical">
+                    {% for card in hands[direction] %}
+                        <button type="button" class="card-button" disabled>
+                            <img src="{{ url_for('static', filename='assets/card_back.png') }}" class="card rotate-270"
+                                 style="margin-top: -60px">
+                        </button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bidding Table & Buttons -->
+        <div class="center">
+            {% if game.game_status.name == 'AUCTION' %}
+                <table class="bidding-table">
+                    <tr>
+                        {% for dir in bidding_order %}
+                            <th>{{ dir }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for row in bidding_rounds %}
+                        <tr>
+                            {% for bid in row %}
+                                <td>
+                                    {% if bid == '?' %}
+                                        <strong style="font-size: 20px;">?</strong>
+                                    {% else %}
+                                        {{ bid }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+
+
+                <form action="{{ url_for('bid') }}" method="post" class="bidding-buttons">
+                    <table>
+                        {% for level in range(1, 8) %}
+                            <tr>
+                                {% for suit, icon in [('C','♣'), ('D','♦'), ('H','♥'), ('S','♠'), ('NT','NT')] %}
+                                    {% set code = level|string + suit %}
+                                    <td>
+                                        <button type="submit" name="bid" value="{{ code }}"
+                                                {% if code not in legal_bids %} disabled {% endif %}
+                                                style="font-size: 28px;
+                                                        color: {% if suit in ['H','D'] %}red{% else %}black{% endif %};">
+                                            {{ level }}{{ icon }}
+                                        </button>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                    <div class="special-actions">
+                        {% for action in ['PASS', 'X', 'XX'] %}
+                            <button type="submit" name="bid" value="{{ action }}"
+                                    {% if action not in legal_bids %} disabled {% endif %}>
+                                {{ action }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </form>
+
+            {% endif %}
+
+            {% if game.game_status.name == 'PLAY' %}
+                <!-- Enhanced PLAY area -->
+                <div style="margin: 20px auto; position: relative; display: grid; grid-template-areas:
             '.    north    .'
             'west center east'
             '.    south    .';
@@ -367,41 +442,87 @@
             min-height: 200px;
         ">
 
-            <!-- CENTER: Nested grid -->
-            <div class="center-grid" style="grid-area: center;">
+                    <!-- CENTER: Nested grid -->
+                    <div class="center-grid" style="grid-area: center;">
 
-                <!-- Trick cards -->
-                <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
-                    {% for direction, card in trick %}
-                        {% set offset_x = 0 %}
-                        {% set offset_y = 0 %}
-                        {% if direction == 'N' %}
-                            {% set offset_y = -30 %}
-                        {% elif direction == 'S' %}
-                            {% set offset_y = 30 %}
-                        {% elif direction == 'E' %}
-                            {% set offset_x = 30 %}
-                        {% elif direction == 'W' %}
-                            {% set offset_x = -30 %}
-                        {% endif %}
-                        <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
-                             class="card rotate-{% if direction == 'N' %}180{% elif direction == 'E' %}270{% elif direction == 'W' %}90{% else %}0{% endif %}"
-                             style="position: absolute;
-                                    left: calc(50% + {{ offset_x }}px - 40px);
-                                    top: calc(50% + {{ offset_y }}px - 60px);
-                                    width: 100px;
-                                    z-index: 10;">
-                    {% endfor %}
+                        <!-- Trick cards -->
+                        <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                            {% for direction, card in trick %}
+                                {% set offset_x = 0 %}
+                                {% set offset_y = 0 %}
+                                {% if direction == 'N' %}
+                                    {% set offset_y = -30 %}
+                                {% elif direction == 'S' %}
+                                    {% set offset_y = 30 %}
+                                {% elif direction == 'E' %}
+                                    {% set offset_x = 30 %}
+                                {% elif direction == 'W' %}
+                                    {% set offset_x = -30 %}
+                                {% endif %}
+                                <img src="{{ url_for('static', filename='assets/' + card + '.png') }}"
+                                     class="card rotate-{% if direction == 'N' %}180{% elif direction == 'E' %}270{% elif direction == 'W' %}90{% else %}0{% endif %}"
+                                     style="position: absolute;
+                                             left: calc(50% + {{ offset_x }}px - 40px);
+                                             top: calc(50% + {{ offset_y }}px - 60px);
+                                             width: 100px;
+                                             z-index: 10;">
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
+
+            {% if game.game_status.name == 'DISPLAY_SCORE' %}
+                <div style="margin-top: 30px;">
+                    <h2>Results:</h2>
+
+                    <table style="margin: 0 auto; border-collapse: collapse; font-size: 18px; background-color: #fff; color: #000;">
+                        <thead>
+                        <tr style="background-color: #2a472d; color: white;">
+                            <th style="padding: 8px; border: 1px solid #ccc;">Team</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Game 1</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Game 2</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Game 3</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Rubber Bonus</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Slam</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Double</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Overtricks</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Penalty</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in [game.score.team_ns, game.score.team_ew] %}
+                            <tr>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.team_name }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.game_points['game 1'] }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.game_points['game 2'] }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.game_points['game 3'] }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.rubber_bonus }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.slam_bonus }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.double_bonus }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.overtrick_points }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.penalty_points }}</td>
+                                <td style="padding: 6px; border: 1px solid #ccc;">{{ team.score_sum() }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <form action="{{ url_for('new_deal') }}" method="post" style="margin-top: 20px;">
+                        <button type="submit" style="font-size: 20px; padding: 10px 24px; border-radius: 8px;">Nowe
+                            rozdanie
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
         </div>
-        {% endif %}
     </div>
-</div>
 {% endif %}
 
 {% if game.game_status.name == 'PLAY' %}
-<div style="
+    <div style="
     position: fixed;
     bottom: 80px;
     right: 160px;
@@ -415,25 +536,22 @@
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
 ">
-    {% set contract = game.auction.contract %}
+        {% set contract = game.auction.contract %}
         {% set suit_map = {'C': '♣', 'D': '♦', 'H': '♥', 'S': '♠', 'NT': 'NT'} %}
         {% set red_suits = ['D', 'H'] %}
+        {% set black_suits = ['C', 'S'] %}
         Contract:
         {{ contract.level }}
-        <span style="color: {{ 'red' if contract.suit.abbreviation() in red_suits else 'black' }}">
+        <span style="color: {{ 'red' if contract.suit.abbreviation() in red_suits else 'black'  }}">
           {{ suit_map[contract.suit.abbreviation()] }}
         </span>
         {{ 'X' * contract.doubled }}
         {{ contract.declarer.abbreviation() }}
-    <div><strong>Tricks NS:</strong> {{ game.play.tricks_ns }}</div>
-    <div><strong>Tricks EW:</strong> {{ game.play.tricks_ew }}</div>
-</div>
+        <div><strong>Tricks NS:</strong> {{ game.play.tricks_ns }}</div>
+        <div><strong>Tricks EW:</strong> {{ game.play.tricks_ew }}</div>
+    </div>
 {% endif %}
 
-{% if game.game_status.name == 'GAME_OVER' %}
-    <h3 style="text-align: center;">Game Over!</h3>
-    <pre style="text-align: center;">{{ game.scores }}</pre>
-{% endif %}
 
 </body>
 </html>

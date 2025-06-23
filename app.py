@@ -60,11 +60,12 @@ def play():
 
 
 
-@app.route('/next_phase', methods=['POST'])
-def next_phase():
-    """Przejście do kolejnej fazy."""
-    game.prepare_new_deal()
+@app.route('/new_deal', methods=['POST'])
+def new_deal():
+    """Przejście do nowego rozdania po zakończeniu gry."""
+    game.prepare_new_deal()  # zakładam, że ustawia game_status = DEAL_CARDS
     return redirect(url_for('index'))
+
 
 
 if __name__ == "__main__":
