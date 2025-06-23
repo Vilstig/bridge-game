@@ -20,6 +20,9 @@ def handle_connect():
     elif handler.get_game_status_str() == 'AUCTION':
         emit('bidding_phase')
         update_auction_new_guest(sid)
+    elif handler.get_game_status_str() == 'PLAY':
+        emit('play_phase')
+        update_play_new_guest(sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -52,6 +55,9 @@ def toggle_ready():
         if handler.get_game_status_str() == 'AUCTION':
             emit('bidding_phase', broadcast=True)
             update_auction()
+        elif handler.get_game_status_str() == 'PLAY':
+            emit('play_phase', broadcast=True)
+            update_play()
 
 def update_lobby():
     emit('update_lobby', handler.get_status(), broadcast=True)
@@ -88,6 +94,10 @@ def update_play():
         emit('update_hand', (hand_status['legal_hand'], hand_status['player_turns'][sid]), room=sid)
     for sid in play_status['player_views']:
         emit('update_hands_view', play_status['player_views'][sid], room=sid)
+
+def update_play_new_guest(sid):
+    play_status = handler.play_status()
+    emit('update_play', (play_status['turn'], play_status['trick_count'][0], play_status['trick_count'][1], play_status['trick_str']), room=sid)
 
 @socketio.on('play_card')
 def play_card(card):

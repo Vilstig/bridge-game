@@ -115,7 +115,6 @@ class Handler:
                 player_views[sid] = card_str
         else:
             vis_dir = vis_dir.abbreviation()
-            print(vis_dir)
             vis_partner_dir = self.rubber.visible_direction.partner().abbreviation()
             vis_sid = ''
             vis_partner_sid = ''
