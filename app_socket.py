@@ -120,6 +120,7 @@ def play_card(card):
         return
     elif handler.get_game_status_str() == 'GAME_OVER':
         emit('game_finished', broadcast=True)
+        update_game_over()
         return
     update_play()
 
