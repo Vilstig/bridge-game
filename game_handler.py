@@ -107,30 +107,34 @@ class Handler:
 
     def player_hands_str(self):
         player_hands = self.get_player_hands()
-        vis_dir = self.rubber.playing_direction.abbreviation()
-        vis_partner_dir = self.rubber.playing_direction.partner().abbreviation()
-        vis_sid = ''
-        vis_partner_sid = ''
-        for sid in self.player_dict:
-            if self.player_dict[sid]['dir'] == vis_dir:
-                vis_sid = sid
-            elif self.player_dict[sid]['dir'] == vis_partner_dir:
-                vis_partner_sid = sid
-
+        vis_dir = self.rubber.visible_direction
         player_views = {}
-        for sid in self.player_dict:
-            card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
-            if sid == vis_sid:
-                card_str += f'{vis_partner_dir}: {player_hands[vis_partner_sid]}'
-            else:
-                card_str += f'{vis_dir}: {player_hands[vis_sid]}'
-            player_views[sid] = card_str
+        if not vis_dir:
+            for sid in self.player_dict:
+                card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
+                player_views[sid] = card_str
+        else:
+            vis_dir = vis_dir.abbreviation()
+            print(vis_dir)
+            vis_partner_dir = self.rubber.visible_direction.partner().abbreviation()
+            vis_sid = ''
+            vis_partner_sid = ''
+            for sid in self.player_dict:
+                if self.player_dict[sid]['dir'] == vis_dir:
+                    vis_sid = sid
+                elif self.player_dict[sid]['dir'] == vis_partner_dir:
+                    vis_partner_sid = sid
+
+            for sid in self.player_dict:
+                card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
+                if sid == vis_sid:
+                    card_str += f'{vis_partner_dir}: {player_hands[vis_partner_sid]}'
+                else:
+                    card_str += f'{vis_dir}: {player_hands[vis_sid]}'
+                player_views[sid] = card_str
 
 
         return{
-            'hands': player_hands,
-            'vis_sid': vis_sid,
-            'vis_partner_sid': vis_partner_sid,
             'player_views': player_views
         }
 

@@ -41,6 +41,7 @@ class Game:
         self.game_status = GameStatus.DEAL_CARDS  # 'Deal cards', 'Auction', 'Play, 'Display score', 'Game over'
         self.game_starter_direction = Direction.NORTH
         self.playing_direction = None
+        self.visible_direction = None
         #self.deal_cards()
 
     def taken_dirs(self):
@@ -89,6 +90,9 @@ class Game:
 
         played_card = current_player.play_card(card)
         self.play.play_card(played_card, current_player)
+
+        if not self.visible_direction:
+            self.visible_direction = self.get_contract().declarer.partner()
 
         if self.play.trick_over():
             finished_trick = self.play.tricks_log[-1]
