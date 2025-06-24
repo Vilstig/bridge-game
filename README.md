@@ -24,11 +24,12 @@ bridge_game/
 │   └── style.css        # Styl CSS gry
 ├── templates/
 │   ├── game.html        # Główna strona gry (Jinja2)
-│   ├── client.js        # Główna strona gry (JS)
+│   ├── test_temp.html        # Główna strona gry (JS)
 ├── app.py               # Tryb HTTP (klasyczny)
 ├── app_socket.py        # Tryb realtime (Socket.IO)
 ├── cli_interface.py     # Wersja konsolowa gry
-├── game_handler.py      # Obsługa logiki gry (SocketIO)
+├── game_handler_jason.py      # Obsługa logiki gry (SocketIO) zwracająca pliki JSON
+├── game_handler_outdated.py   # Przestarzała obsługa logiki gry (SocketIO)
 ├── game_logic.py        # Główna logika gry
 ├── .gitignore
 ├── LICENSE              # Licencja MIT
@@ -79,6 +80,8 @@ python app.py
 ```
 
 Ten tryb wykorzystuje Jinja2 do dynamicznego renderowania HTML przy każdej akcji.
+
+Jako że jest nieaktualizowanym starym prototypem, może zawierać błędy 
 
 ---
 
