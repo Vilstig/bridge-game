@@ -152,6 +152,7 @@ def update_player_play():
             'turn': hand_status['player_turns'][sid],
             'trick_count': handler.play_status()['trick_count'],
             'trick': handler.play_status()['trick'],
+            'last_full_trick': handler.play_status()['last_full_trick'],
             'direction_hands': visible_hands[sid],
             'legal_hand': hand_status['legal_hand']
         }, room=sid)

@@ -98,6 +98,7 @@ class Handler:
             'turn': self.rubber.playing_direction.abbreviation(),
             'trick_count': self.rubber.get_tricks_count(),
             'trick': [(d.abbreviation(), str(c)) for d, c in trick],
+            'last_full_trick': [(d.abbreviation(), str(c)) for d, c in self.rubber.play.tricks_log[-1]] if self.rubber.play.tricks_log else [],
             'direction_hands': self.get_direction_hands()
         }
 

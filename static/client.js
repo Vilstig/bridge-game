@@ -75,18 +75,35 @@ socket.on('play_phase', () => {
     switchView('play');
 });
 
-socket.on('update_play', data => {
-    const {turn, trick_count, trick, direction_hands, legal_hand} = data;
+let trickDisplayed = false;
 
+socket.on('update_play', data => {
+    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick} = data;
+
+    currentDirectionHands = direction_hands;
+    currentLegalCards = legal_hand;
+    currentIsMyTurn = turn;
 
     document.getElementById('curr-turn-play').innerText = turn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
     document.getElementById('tricks-we').innerText = trick_count[1];
 
-    renderTrick(trick);
+    if (trick.length === 0 && last_full_trick && last_full_trick.length === 4) {
+        trickDisplayed = true;
+        renderTrick(last_full_trick);
 
-    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
+        setTimeout(() => {
+            trickDisplayed = false;
+            renderTrick([]);
+            renderHands('hands-view', currentDirectionHands, currentLegalCards, currentIsMyTurn, myRole[0]);
+        }, 1500);
+    } else {
+        renderTrick(trick);
+        renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
+    }
 });
+
+
 
 
 socket.on('update_score', data => {
@@ -113,8 +130,10 @@ function toggleReady() {
 }
 
 function playCard(card) {
+    if (trickDisplayed) return;
     socket.emit('play_card', card);
 }
+
 
 
 function endScores() {
@@ -203,8 +222,8 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
-    const rotations = {N: 180, S: 0, E: 270, W: 90};
-    const layoutOrder = {N: 'north', S: 'south', E: 'east', W: 'west'};
+    const rotations = { N: 180, S: 0, E: 270, W: 90 };
+    const layoutOrder = { N: 'north', S: 'south', E: 'east', W: 'west' };
 
     for (const dir of ['N', 'E', 'S', 'W']) {
         const handWrapper = document.createElement('div');
@@ -222,18 +241,16 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
             button.className = 'card-button';
 
             const isVisible = dir === currentDir;
-            const isLegal = isVisible && isMyTurn && legalCards.includes(card);
+            const isLegal = isVisible && isMyTurn && legalCards.includes(card) && !trickDisplayed;
 
             if (isLegal) {
                 button.onclick = () => playCard(card);
             } else {
                 button.disabled = true;
-
-                if (isVisible && isMyTurn) {
-                    button.classList.add('dimmed-card');
+                if (isVisible && isMyTurn && !legalCards.includes(card)) {
+                    button.classList.add('dimmed-card'); // dodaj efekt tylko do nielegalnych
                 }
             }
-
 
             const img = document.createElement('img');
             img.className = `card rotate-${rotations[dir]}`;
@@ -249,6 +266,7 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
         container.appendChild(handWrapper);
     }
 }
+
 
 
 function renderOwnHand(containerId, cards) {
