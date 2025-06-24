@@ -77,10 +77,11 @@ socket.on('play_phase', () => {
 let trickDisplayed = false;
 
 socket.on('update_play', data => {
-    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick, vis_dir} = data;
+    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick, vis_dir, contract} = data;
     document.getElementById('curr-turn-play').innerText = turn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
     document.getElementById('tricks-we').innerText = trick_count[1];
+    document.getElementById('contract-play').innerText = contract;
 
     if (trick.length === 0 && last_full_trick && last_full_trick.length === 4) {
         trickDisplayed = true;
@@ -235,7 +236,7 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
             button.className = 'card-button';
 
             const isVisible = dir === currentDir || vis_dir === dir;
-            const isLegal = isVisible && isMyTurn && legalCards.includes(card) && !trickDisplayed;
+            const isLegal = legalCards.includes(card) && !trickDisplayed; //&& isVisible && isMyTurn
 
             if (isLegal) {
                 button.onclick = () => playCard(card);
