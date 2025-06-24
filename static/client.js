@@ -26,12 +26,21 @@ socket.on('role_assigned', role => {
 socket.on('update_lobby', status => {
     const list = document.getElementById('player-status');
     list.innerHTML = '';
+
     for (let player in status.players) {
+        const ready = status.players[player];
         const li = document.createElement('li');
-        li.textContent = `${player}: ${status.players[player] ? 'Ready' : 'Not ready'}`;
+        li.className = ready ? 'ready' : 'not-ready';
+        li.textContent = player;
+
+        const state = document.createElement('span');
+        state.textContent = ready ? 'Ready' : 'Not Ready';
+        li.appendChild(state);
+
         list.appendChild(li);
     }
 });
+
 
 socket.on('game_paused', () => {
     alert('Game paused. A player left the game.');
@@ -56,11 +65,9 @@ socket.on('update_auction', data => {
 
 
 socket.on('player_update_auction', data => {
-    const { hand } = data;
+    const {hand} = data;
     renderOwnHand('your-auction-hand', hand);
 });
-
-
 
 
 socket.on('play_phase', () => {
@@ -69,57 +76,17 @@ socket.on('play_phase', () => {
 });
 
 socket.on('update_play', data => {
-    const {turn, trick_count, trick, direction_hands} = data;
+    const {turn, trick_count, trick, direction_hands, legal_hand} = data;
+
 
     document.getElementById('curr-turn-play').innerText = turn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
     document.getElementById('tricks-we').innerText = trick_count[1];
-    document.getElementById('curr-trick').innerText = trick.map(
-        ([dir, card]) => `${dir}: ${card}`
-    ).join(' | ');
 
-    // Renderuj czytelną rękę
-    const handsDiv = document.getElementById('hands-view');
-    handsDiv.innerText = Object.entries(direction_hands).map(
-        ([dir, cards]) => `${directionName(dir)}: ${cards.join(' ')}`
-    ).join('\n');
+    renderTrick(trick);
+
+    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
 });
-
-// pomocnicza: N => North, itd.
-function directionName(abbrev) {
-    switch (abbrev) {
-        case 'N':
-            return 'North';
-        case 'E':
-            return 'East';
-        case 'S':
-            return 'South';
-        case 'W':
-            return 'West';
-        default:
-            return abbrev;
-    }
-}
-
-
-socket.on('update_hand', data => {
-    const {legal_hand, turn} = data;
-    document.getElementById('play-btn').disabled = !turn;
-    const dropdown = document.getElementById('legal-cards');
-    dropdown.innerHTML = '';
-    if (turn) {
-        legal_hand.forEach(card => {
-            const opt = document.createElement('option');
-            opt.value = card;
-            opt.text = card;
-            dropdown.appendChild(opt);
-        });
-    }
-});
-socket.on('update_hands_view', view => {
-    renderHands('hands-view', view);
-});
-
 
 
 socket.on('update_score', data => {
@@ -145,15 +112,10 @@ function toggleReady() {
     btn.innerText = btn.innerText === 'Ready' ? 'Unready' : 'Ready';
 }
 
-function makeBid() {
-    const bid = document.getElementById('bid-dropdown').value;
-    socket.emit('make_bid', bid);
-}
-
-function playCard() {
-    const card = document.getElementById('legal-cards').value;
+function playCard(card) {
     socket.emit('play_card', card);
 }
+
 
 function endScores() {
     socket.emit('end_scores');
@@ -237,12 +199,12 @@ function makeBidFromButton(bid) {
     socket.emit('make_bid', bid);
 }
 
-function renderHands(containerId, view) {
+function renderHands(containerId, view, legalCards = [], isMyTurn = false, currentDir = null) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
-    const rotations = { N: 180, S: 0, E: 270, W: 90 };
-    const layoutOrder = { N: 'north', S: 'south', E: 'east', W: 'west' };
+    const rotations = {N: 180, S: 0, E: 270, W: 90};
+    const layoutOrder = {N: 'north', S: 'south', E: 'east', W: 'west'};
 
     for (const dir of ['N', 'E', 'S', 'W']) {
         const handWrapper = document.createElement('div');
@@ -258,11 +220,26 @@ function renderHands(containerId, view) {
         view[dir].forEach(card => {
             const button = document.createElement('button');
             button.className = 'card-button';
-            button.disabled = true;
+
+            const isVisible = dir === currentDir;
+            const isLegal = isVisible && isMyTurn && legalCards.includes(card);
+
+            if (isLegal) {
+                button.onclick = () => playCard(card);
+            } else {
+                button.disabled = true;
+
+                if (isVisible && isMyTurn) {
+                    button.classList.add('dimmed-card');
+                }
+            }
+
 
             const img = document.createElement('img');
             img.className = `card rotate-${rotations[dir]}`;
-            img.src = card === '*' ? '/static/assets/card_back.png' : `/static/assets/${card}.png`;
+            img.src = isVisible
+                ? `/static/assets/${card}.png`
+                : '/static/assets/card_back.png';
 
             button.appendChild(img);
             handDiv.appendChild(button);
@@ -272,6 +249,7 @@ function renderHands(containerId, view) {
         container.appendChild(handWrapper);
     }
 }
+
 
 function renderOwnHand(containerId, cards) {
     const container = document.getElementById(containerId);
@@ -289,4 +267,37 @@ function renderOwnHand(containerId, cards) {
         button.appendChild(img);
         container.appendChild(button);
     });
+}
+
+function renderTrick(trick) {
+    const container = document.getElementById('trick-center');
+    container.innerHTML = '';
+
+    const rotations = {N: 180, S: 0, E: 270, W: 90};
+    const offsets = {
+        N: [0, -30], S: [0, 30], E: [30, 0], W: [-30, 0]
+    };
+
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.width = '100px';
+    wrapper.style.height = '100px';
+    wrapper.style.margin = '0 auto';
+
+    trick.forEach(([dir, card]) => {
+        const img = document.createElement('img');
+        img.src = `/static/assets/${card}.png`;
+        img.className = `card rotate-${rotations[dir]}`;
+
+        const [x, y] = offsets[dir];
+        img.style.position = 'absolute';
+        img.style.left = `calc(50% + ${x}px - 40px)`;
+        img.style.top = `calc(50% + ${y}px - 60px)`;
+        img.style.width = '100px';
+        img.style.zIndex = '10';
+
+        wrapper.appendChild(img);
+    });
+
+    container.appendChild(wrapper);
 }

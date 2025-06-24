@@ -256,3 +256,130 @@ table.bidding-table td {
     margin-top: 20px;
     text-align: center;
 }
+.table-container-wrapper {
+    position: relative;
+}
+
+#trick-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none; /* Trick nie blokuje klikania kart */
+}
+
+.card-button.dimmed-card img {
+    filter: brightness(80%);
+}
+
+.status-list {
+  list-style: none;
+  padding: 0;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.status-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+  margin: 4px 0;
+  background-color: #1e2e1e;
+  border-radius: 6px;
+  font-size: 18px;
+}
+
+.status-list li.ready {
+  color: #9eff9e;
+}
+
+.status-list li.not-ready {
+  color: #ff9e9e;
+}
+
+.centered-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.role-card {
+    background-color: #1e3d1e;
+    padding: 40px 60px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+}
+
+.role-card h1 {
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.role-card select,
+.role-card button {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.role-card select {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+.role-card button {
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.role-card button:hover:not([disabled]) {
+    background-color: #45a049;
+}
+
+.role-card button:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.role-card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+#ready-btn {
+    background-color: #1f35b8;
+    color: white;
+    font-size: 18px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+#ready-btn:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+#ready-btn:active {
+    transform: scale(0.97);
+}
+
+
+

@@ -146,23 +146,28 @@ def update_player_auction_single(sid):
 def update_player_play():
     hand_status = handler.player_hand_update()
     visible_hands = handler.get_visible_hands_per_sid()
-    for sid in hand_status['player_turns']:
-        emit('update_hand', {
-            'legal_hand': hand_status['legal_hand'],
-            'turn': hand_status['player_turns'][sid]
+
+    for sid in handler.player_dict:
+        emit('update_play', {
+            'turn': hand_status['player_turns'][sid],
+            'trick_count': handler.play_status()['trick_count'],
+            'trick': handler.play_status()['trick'],
+            'direction_hands': visible_hands[sid],
+            'legal_hand': hand_status['legal_hand']
         }, room=sid)
-        emit('update_hands_view', visible_hands[sid], room=sid)
 
 
 def update_player_play_single(sid):
     hand_status = handler.player_hand_update()
     visible_hands = handler.get_visible_hands_per_sid()
 
-    emit('update_hand', {
-        'legal_hand': hand_status['legal_hand'],
-        'turn': hand_status['player_turns'][sid]
+    emit('update_play', {
+        'turn': hand_status['player_turns'][sid],
+        'trick_count': handler.play_status()['trick_count'],
+        'trick': handler.play_status()['trick'],
+        'direction_hands': visible_hands[sid],
+        'legal_hand': hand_status['legal_hand']
     }, room=sid)
-    emit('update_hands_view', visible_hands[sid], room=sid)
 
 
 if __name__ == '__main__':

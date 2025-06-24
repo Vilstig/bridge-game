@@ -7,42 +7,50 @@
 </head>
 <body>
 
-<div id="role-selection">
-    <h1>Select Your Role:</h1>
-    <select id="role-dropdown"></select>
-    <button id="join-button" onclick="joinGame()" disabled>Join</button>
+<div id="role-selection" class="centered-container">
+    <div class="role-card">
+        <h1>Select Your Role</h1>
+        <select id="role-dropdown"></select>
+        <button id="join-button" onclick="joinGame()" disabled>Join</button>
+    </div>
 </div>
+
 
 <div id="lobby" style="display: none;">
-    <h1>Your Role: <span id="your-role">Spectator</span></h1>
-    <button id="ready-btn" onclick="toggleReady()">Ready</button>
-    <h2>Status:</h2>
-    <ul id="player-status"></ul>
-</div>
+  <h1 style="text-align: center;">Your Role: <span id="your-role">Spectator</span></h1>
 
-<div id="auction" style="display: none;">
-  <h1>Auction Phase</h1>
-  <h2>Your role: <span id="your-role-bid">Spectator</span></h2>
-  <h3>Turn: <span id="curr-turn">-</span></h3>
-  <h4>Contract: <span id="contract">-</span></h4>
+  <!-- Lista graczy bez ograniczeń -->
+  <ul id="player-status" class="status-list"></ul>
 
-  <!-- tylko twoja ręka -->
-  <div id="your-auction-hand" class="card-hand horizontal" style="margin-bottom: 30px;"></div>
-
-  <!-- bidding table -->
-  <div class="center">
-    <table class="bidding-table" id="bidding-history"></table>
-    <form class="bidding-buttons" onsubmit="return false;">
-      <table id="bidding-buttons-table"></table>
-      <div class="special-actions">
-        <button type="button" id="bid-pass" onclick="makeBidFromButton('PASS')">PASS</button>
-        <button type="button" id="bid-x" onclick="makeBidFromButton('X')">X</button>
-        <button type="button" id="bid-xx" onclick="makeBidFromButton('XX')">XX</button>
-      </div>
-    </form>
+  <!-- Osobny kontener na przycisk -->
+  <div style="display: flex; justify-content: center; margin-top: 20px;">
+    <button id="ready-btn" class="ready-button" onclick="toggleReady()">Ready</button>
   </div>
 </div>
 
+
+<div id="auction" style="display: none;">
+    <h1>Auction Phase</h1>
+    <h2>Your role: <span id="your-role-bid">Spectator</span></h2>
+    <h3>Turn: <span id="curr-turn">-</span></h3>
+    <h4>Contract: <span id="contract">-</span></h4>
+
+    <!-- tylko twoja ręka -->
+    <div id="your-auction-hand" class="card-hand horizontal" style="margin-bottom: 30px;"></div>
+
+    <!-- bidding table -->
+    <div class="center">
+        <table class="bidding-table" id="bidding-history"></table>
+        <form class="bidding-buttons" onsubmit="return false;">
+            <table id="bidding-buttons-table"></table>
+            <div class="special-actions">
+                <button type="button" id="bid-pass" onclick="makeBidFromButton('PASS')">PASS</button>
+                <button type="button" id="bid-x" onclick="makeBidFromButton('X')">X</button>
+                <button type="button" id="bid-xx" onclick="makeBidFromButton('XX')">XX</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 
 <div id="play" style="display: none;">
@@ -52,16 +60,13 @@
     <h3>Tricks NS: <span id="tricks-ns">-</span></h3>
     <h3>Tricks WE: <span id="tricks-we">-</span></h3>
 
-    <div class="table-container" id="hands-view">
-        <!-- ręce renderowane dynamicznie -->
+    <div class="table-container-wrapper">
+        <div class="table-container" id="hands-view">
+            <!-- ręce renderowane dynamicznie -->
+        </div>
+        <div id="trick-center"></div>
     </div>
 
-    <div id="trick-center" class="center-grid" style="margin-top: 30px;"></div>
-
-    <div style="margin-top: 20px; text-align: center;">
-        <select id="legal-cards"></select>
-        <button id="play-btn" onclick="playCard()" disabled>Play card</button>
-    </div>
 </div>
 
 <div id="score" style="display: none;">
