@@ -4,7 +4,6 @@ from game_logic import Game, get_player_by_direction
 class Handler:
     def __init__(self):
         self.rubber = Game()
-        self.visible_hand = None
         self.player_dict = {}  # sid: {dir: ..., ready:..., has_played:...}
         self.game_running = False
 
@@ -132,3 +131,6 @@ class Handler:
             }
 
         return result
+
+    def get_visible_dir(self) -> str:
+        return self.rubber.visible_direction.abbreviation() if self.rubber.visible_direction else None

@@ -142,7 +142,8 @@ def update_player_play(sid=None):
             'trick': play_status['trick'],
             'last_full_trick': play_status['last_full_trick'],
             'direction_hands': visible_hands[sid],
-            'legal_hand': hand_status['legal_hand']
+            'legal_hand': hand_status['legal_hand'],
+            'vis_dir': handler.get_visible_dir()
         }, room=sid)
     else:
         for sid in handler.player_dict:
@@ -152,7 +153,8 @@ def update_player_play(sid=None):
                 'trick': play_status['trick'],
                 'last_full_trick': play_status['last_full_trick'],
                 'direction_hands': visible_hands[sid],
-                'legal_hand': hand_status['legal_hand']
+                'legal_hand': hand_status['legal_hand'],
+                'vis_dir': handler.get_visible_dir()
             }, room=sid)
 
 

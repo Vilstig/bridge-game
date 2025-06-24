@@ -77,12 +77,7 @@ socket.on('play_phase', () => {
 let trickDisplayed = false;
 
 socket.on('update_play', data => {
-    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick} = data;
-
-    //currentDirectionHands = direction_hands;
-    //currentLegalCards = legal_hand;
-    //currentIsMyTurn = turn;
-
+    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick, vis_dir} = data;
     document.getElementById('curr-turn-play').innerText = turn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
     document.getElementById('tricks-we').innerText = trick_count[1];
@@ -98,7 +93,7 @@ socket.on('update_play', data => {
     } else {
         renderTrick(trick);
     }
-    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
+    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0], vis_dir);
 });
 
 
@@ -216,7 +211,7 @@ function makeBidFromButton(bid) {
     socket.emit('make_bid', bid);
 }
 
-function renderHands(containerId, view, legalCards = [], isMyTurn = false, currentDir = null) {
+function renderHands(containerId, view, legalCards = [], isMyTurn = false, currentDir = null, vis_dir) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
@@ -238,7 +233,7 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
             const button = document.createElement('button');
             button.className = 'card-button';
 
-            const isVisible = dir === currentDir;
+            const isVisible = dir === currentDir || vis_dir === dir;
             const isLegal = isVisible && isMyTurn && legalCards.includes(card) && !trickDisplayed;
 
             if (isLegal) {
