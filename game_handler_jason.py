@@ -23,10 +23,7 @@ class Handler:
         return True
 
     def get_status(self):
-        return {
-            'players': {p['dir']: p['ready'] for p in self.player_dict.values()},
-            'game_running': self.game_running
-        }
+        return {p['dir']: p['ready'] for p in self.player_dict.values()}
 
     def get_player_hands(self):
         return {
@@ -45,12 +42,10 @@ class Handler:
         return {
             'turn': self.rubber.playing_direction.abbreviation(),
             'contract': str(self.rubber.auction.contract),
-            'hands': self.get_player_hands(),
             'bids': self.rubber.get_legal_bids(),
-            'player_turns': self.player_turns(),
-            'direction_hands': self.get_direction_hands(),
             'bidding_history': [rounds, dir_names],
         }
+
 
     def player_turns(self):
         return {
@@ -59,7 +54,7 @@ class Handler:
         }
 
     def toggle_ready(self, sid):
-        if sid in self.player_dict:
+        if sid in self.player_dict: #additional check if user is player
             self.player_dict[sid]['ready'] = not self.player_dict[sid]['ready']
             if len(self.player_dict) == 4 and all(p['ready'] for p in self.player_dict.values()):
                 self.game_running = True
@@ -75,11 +70,8 @@ class Handler:
             return True
         return False
 
-    def deal_cards(self) -> bool:
-        if self.valid_status(GameStatus.DEAL_CARDS):
-            self.rubber.deal_cards()
-            return True
-        return False
+    def deal_cards(self):
+        self.rubber.deal_cards()
 
     def valid_status(self, exp_status: GameStatus) -> bool:
         return self.rubber.game_status == exp_status
@@ -95,11 +87,9 @@ class Handler:
     def play_status(self):
         trick = self.rubber.get_current_trick()
         return {
-            'turn': self.rubber.playing_direction.abbreviation(),
             'trick_count': self.rubber.get_tricks_count(),
             'trick': [(d.abbreviation(), str(c)) for d, c in trick],
-            'last_full_trick': [(d.abbreviation(), str(c)) for d, c in self.rubber.play.tricks_log[-1]] if self.rubber.play.tricks_log else [],
-            'direction_hands': self.get_direction_hands()
+            'last_full_trick': [(d.abbreviation(), str(c)) for d, c in self.rubber.play.tricks_log[-1]] if self.rubber.play.tricks_log else []
         }
 
     def player_hand_update(self):
@@ -123,7 +113,7 @@ class Handler:
         self.rubber.deal_cards()
 
     def game_over_status(self):
-        return {'scores': str(self.rubber.get_current_scores())}
+        return str(self.rubber.get_current_scores())
 
     def get_visible_hands_per_sid(self):
         all_hands = self.get_direction_hands()

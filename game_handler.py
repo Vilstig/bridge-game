@@ -17,7 +17,7 @@ class Handler:
         #roles.append('Spectator')
         return roles
 
-    def add_player(self, sid, role: str) -> bool: #can this be cleanly refactored to handle nonexistent roles? shouldnt happen, but may be good practice
+    def add_player(self, sid, role: str) -> bool:
         '''if role == 'Spectator':
             self.spectators.add(sid)
             return True'''
