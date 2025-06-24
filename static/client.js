@@ -94,11 +94,12 @@ socket.on('update_play', data => {
         setTimeout(() => {
             trickDisplayed = false;
             renderTrick([]);
+            renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
         }, 1500);
     } else {
         renderTrick(trick);
+        renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
     }
-    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
 });
 
 
