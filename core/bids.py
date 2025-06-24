@@ -90,47 +90,6 @@ class BridgeBid:
             return str(self.special)
         return f"{self.level} {self.suit}"
 
-    def verify_legality(self, previous_bid: Optional["BridgeBid"], new_bid_direction: Direction,
-                        contract_direction: Direction) -> bool:
-        """
-        Sprawdza legalność nowego zgłoszenia w brydżu w odniesieniu do poprzedniego zgłoszenia.
-
-        :param previous_bid: Poprzednie zgłoszenie w licytacji (może być None, jeśli nowy gracz zaczyna licytację).
-        :param new_bid_direction: Kierunek gracza składającego nowe zgłoszenie (np. 'N', 'E', 'S', 'W').
-        :param contract_direction: Kierunek gracza, który zgłosił aktualny kontrakt.
-        :return: True, jeśli zgłoszenie jest legalne; False, jeśli jest nielegalne.
-        """
-        # Jeśli nie ma wcześniejszego zgłoszenia, każde nowe zgłoszenie (ale nie kontra/rekontra) jest legalne
-        if previous_bid is None:
-            if self.special in {SpecialBid.DOUBLE, SpecialBid.REDOUBLE}:
-                return False  # Pierwszym zgłoszeniem nie może być DOUBLE ani REDOUBLE
-            return True
-
-        # Przypadek 1: Jeśli nowe zgłoszenie to PASS, zawsze jest legalne
-        if self.special == SpecialBid.PASS:
-            return True
-
-        # Przypadek 2: Jeśli nowe zgłoszenie to DOUBLE (kontra)
-        if self.special == SpecialBid.DOUBLE:
-            # DOUBLE jest legalne, gdy poprzednie zgłoszenie pochodziło od przeciwnika i nie było kontrą ani rekontrą
-            if previous_bid.special is None and contract_direction.partner() is not new_bid_direction:
-                return True
-            return False
-
-        # Przypadek 3: Jeśli nowe zgłoszenie to REDOUBLE (rekontra)
-        if self.special == SpecialBid.REDOUBLE:
-            # REDOUBLE jest legalne, gdy poprzednie zgłoszenie było DOUBLE i pochodziło od przeciwnika
-            if previous_bid.special == SpecialBid.DOUBLE and (contract_direction.partner() is new_bid_direction) or (contract_direction is new_bid_direction):
-                return True
-            return False
-
-        # Przypadek 4: Jeśli nowe zgłoszenie to normalna licytacja (np. 1H, 2NT, itd.)
-        if previous_bid.special is None:
-            # Jeśli poprzednie zgłoszenie to zwykła licytacja, nowe zgłoszenie musi być wyższe
-            return self.is_higher_than(previous_bid)
-
-        # Jeśli poprzednie zgłoszenie to DOUBLE lub REDOUBLE, nowe zgłoszenie nie może być niższe
-        return self.is_higher_than(previous_bid)
 
     def is_higher_than(self, other: Optional['BridgeBid']) -> bool:
         """

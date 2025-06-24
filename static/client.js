@@ -57,7 +57,6 @@ socket.on('update_auction', data => {
     const {turn, contract, bids, bidding_history} = data;
 
     document.getElementById('curr-turn').innerText = turn;
-    document.getElementById('contract').innerText = contract;
 
     renderBiddingTable(bidding_history);
     renderBidButtons(bids);
@@ -179,7 +178,7 @@ function renderBiddingTable([rounds, dirNames]) {
         row.forEach(bid => {
             const td = document.createElement('td');
             if (bid === '?') {
-                td.innerHTML = '<strong style="font-size: 22px; color: lightblue;">?</strong>';
+                td.innerHTML = '<strong style="font-size: 18px; color: lightblue;">?</strong>';
             } else {
                 td.innerText = bid;
             }
@@ -204,9 +203,9 @@ function renderBidButtons(legalBids) {
             btn.innerText = `${level}${symbol}`;
             btn.onclick = () => makeBidFromButton(code);
             btn.disabled = !legalBids.includes(code);
-            btn.style.fontSize = '28px';
-            btn.style.width = '90px';
-            btn.style.height = '54px';
+            btn.style.fontSize = '20px';
+            btn.style.width = '60px';
+            btn.style.height = '36px';
             btn.style.margin = '2px';
             btn.style.borderRadius = '6px';
             if (['H', 'D'].includes(suit)) btn.style.color = 'red';

@@ -93,7 +93,7 @@ class Game:
         self.play.play_card(played_card, current_player)
 
         if not self.visible_direction:
-            self.visible_direction = self.get_contract().declarer.partner()
+            self.visible_direction = self.playing_direction.next()
 
         if self.play.trick_over():
             finished_trick = self.play.tricks_log[-1]
@@ -232,9 +232,8 @@ class Auction:
             raise ValueError('Illegal bid')
 
     def auction_end(self) -> bool:
-        if self.pass_count == 4:
-            return True
-        elif self.pass_count == 3 and self.curr_bid is not None:
+        if self.pass_count == 4 or (self.pass_count == 3 and self.curr_bid is not None):
+            self.contract.declarer = self.determine_play_starting_direction().previous()
             return True
         return False
 
