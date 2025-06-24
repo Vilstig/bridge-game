@@ -291,31 +291,32 @@ function renderTrick(trick) {
     const container = document.getElementById('trick-center');
     container.innerHTML = '';
 
-    const rotations = {N: 180, S: 0, E: 270, W: 90};
-    const offsets = {
-        N: [0, -30], S: [0, 30], E: [30, 0], W: [-30, 0]
+    const rotations = { N: 180, S: 0, E: 270, W: 90 };
+    const gridAreas = {
+        N: 'top-center',
+        S: 'bot-center',
+        E: 'mid-right',
+        W: 'mid-left',
     };
 
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-    wrapper.style.width = '100px';
-    wrapper.style.height = '100px';
-    wrapper.style.margin = '0 auto';
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'center-grid'; // zakłada że masz grid 3x3
 
     trick.forEach(([dir, card]) => {
+        const slot = document.createElement('div');
+        slot.style.gridArea = gridAreas[dir];
+
         const img = document.createElement('img');
         img.src = `/static/assets/${card}.png`;
         img.className = `card rotate-${rotations[dir]}`;
-
-        const [x, y] = offsets[dir];
-        img.style.position = 'absolute';
-        img.style.left = `calc(50% + ${x}px - 40px)`;
-        img.style.top = `calc(50% + ${y}px - 60px)`;
         img.style.width = '100px';
-        img.style.zIndex = '10';
+        img.style.margin = '0 auto';
+        img.style.display = 'block';
 
-        wrapper.appendChild(img);
+        slot.appendChild(img);
+        gridWrapper.appendChild(slot);
     });
 
-    container.appendChild(wrapper);
+    container.appendChild(gridWrapper);
 }
+
