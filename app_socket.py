@@ -1,12 +1,12 @@
-import eventlet
-eventlet.monkey_patch(os=False)
+#import eventlet
+#eventlet.monkey_patch(os=False)
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from game_handler_jason import Handler
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tanuki???'
-socketio = SocketIO(app, async_mode='eventlet')
+socketio = SocketIO(app, async_mode='gevent')
 handler = Handler()
 
 
