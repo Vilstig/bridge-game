@@ -1,5 +1,5 @@
-#import eventlet
-#eventlet.monkey_patch(os=False)
+# import eventlet
+# eventlet.monkey_patch(os=False)
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from game_handler_jason import Handler
@@ -43,7 +43,7 @@ def handle_disconnect():
     if handler.remove_player(sid) and was_running:
         emit('game_paused', broadcast=True)
         emit('lobby_phase', broadcast=True)
-    emit('update_lobby', handler.get_status(), broadcast=True) #outside the if for potential spectator handling
+    emit('update_lobby', handler.get_status(), broadcast=True)  # outside the if for potential spectator handling
 
 
 @socketio.on('choose_role')
@@ -73,7 +73,7 @@ def toggle_ready():
             update_player_auction()
         elif handler.get_game_status_str() == 'PLAY':
             emit('play_phase', broadcast=True)
-            #emit('update_play', handler.play_status(), broadcast=True) when implementing spectators, this should be modified to update their play screen correctly
+            # emit('update_play', handler.play_status(), broadcast=True) when implementing spectators, this should be modified to update their play screen correctly
             update_player_play()
         elif handler.get_game_status_str() == 'DISPLAY_SCORE':
             emit('score_phase', broadcast=True)
@@ -93,7 +93,7 @@ def make_bid(bid):
     update_player_auction()
     if handler.get_game_status_str() == 'PLAY':
         emit('play_phase', broadcast=True)
-        #emit('update_play', handler.play_status(), broadcast=True)
+        # emit('update_play', handler.play_status(), broadcast=True)
         update_player_play()
 
 
@@ -110,7 +110,7 @@ def play_card(card):
         emit('update_game_over', handler.game_over_status(), broadcast=True)
         return
 
-    #emit('update_play', handler.play_status(), broadcast=True)
+    # emit('update_play', handler.play_status(), broadcast=True)
     update_player_play()
 
 
@@ -130,7 +130,6 @@ def update_player_auction(sid=None):
             emit('player_update_auction', handler.get_player_hands()[sid], room=sid)
 
 
-
 def update_player_play(sid=None):
     hand_status = handler.player_hand_update()
     visible_hands = handler.get_visible_hands_per_sid()
@@ -138,32 +137,25 @@ def update_player_play(sid=None):
     dummy_controller = handler.get_dummy_controller_sid()
 
     if sid:
-        emit('update_play', {
-            'turn': hand_status['player_turns'][sid],
-            'trick_count': play_status['trick_count'],
-            'trick': play_status['trick'],
-            'last_full_trick': play_status['last_full_trick'],
-            'direction_hands': visible_hands[sid],
-            'legal_hand': hand_status['legal_hand'],
-            'vis_dir': handler.get_visible_dir(),
-            'contract': play_status['contract'],
-            'dummy_controller_sid': dummy_controller,
-            'current_playing_direction': play_status['current_playing_direction'],
-        }, room=sid)
+        update_player_play_emit(sid, hand_status, visible_hands, play_status, dummy_controller)
     else:
         for sid in handler.player_dict:
-            emit('update_play', {
-                'turn': hand_status['player_turns'][sid],
-                'trick_count': play_status['trick_count'],
-                'trick': play_status['trick'],
-                'last_full_trick': play_status['last_full_trick'],
-                'direction_hands': visible_hands[sid],
-                'legal_hand': hand_status['legal_hand'],
-                'vis_dir': handler.get_visible_dir(),
-                'contract': play_status['contract'],
-                'dummy_controller_sid': dummy_controller,
-                'current_playing_direction': play_status['current_playing_direction'],
-            }, room=sid)
+            update_player_play_emit(sid, hand_status, visible_hands, play_status, dummy_controller)
+
+
+def update_player_play_emit(sid, hand_status, visible_hands, play_status, dummy_controller):
+    emit('update_play', {
+        'turn': hand_status['player_turns'][sid],
+        'trick_count': play_status['trick_count'],
+        'trick': play_status['trick'],
+        'last_full_trick': play_status['last_full_trick'],
+        'direction_hands': visible_hands[sid],
+        'legal_hand': hand_status['legal_hand'],
+        'vis_dir': handler.get_visible_dir(),
+        'contract': play_status['contract'],
+        'dummy_controller_sid': dummy_controller,
+        'current_playing_direction': play_status['current_playing_direction'],
+    }, room=sid)
 
 
 if __name__ == '__main__':
