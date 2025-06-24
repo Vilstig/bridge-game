@@ -135,6 +135,8 @@ def update_player_play(sid=None):
     hand_status = handler.player_hand_update()
     visible_hands = handler.get_visible_hands_per_sid()
     play_status = handler.play_status()
+    dummy_controller = handler.get_dummy_controller_sid()
+
     if sid:
         emit('update_play', {
             'turn': hand_status['player_turns'][sid],
@@ -144,7 +146,9 @@ def update_player_play(sid=None):
             'direction_hands': visible_hands[sid],
             'legal_hand': hand_status['legal_hand'],
             'vis_dir': handler.get_visible_dir(),
-            'contract': play_status['contract']
+            'contract': play_status['contract'],
+            'dummy_controller_sid': dummy_controller,
+            'current_playing_direction': play_status['current_playing_direction'],
         }, room=sid)
     else:
         for sid in handler.player_dict:
@@ -156,9 +160,12 @@ def update_player_play(sid=None):
                 'direction_hands': visible_hands[sid],
                 'legal_hand': hand_status['legal_hand'],
                 'vis_dir': handler.get_visible_dir(),
-                'contract': play_status['contract']
+                'contract': play_status['contract'],
+                'dummy_controller_sid': dummy_controller,
+                'current_playing_direction': play_status['current_playing_direction'],
             }, room=sid)
 
 
 if __name__ == '__main__':
+    print('Server started')
     socketio.run(app, host='0.0.0.0', port=5000)

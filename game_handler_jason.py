@@ -89,6 +89,7 @@ class Handler:
             'trick_count': self.rubber.get_tricks_count(),
             'trick': [(d.abbreviation(), str(c)) for d, c in trick],
             'last_full_trick': [(d.abbreviation(), str(c)) for d, c in self.rubber.play.tricks_log[-1]] if self.rubber.play.tricks_log else [],
+            'current_playing_direction': self.rubber.playing_direction.abbreviation(),
             'contract': str(self.rubber.auction.contract)
         }
 
@@ -136,3 +137,17 @@ class Handler:
     def get_visible_dir(self) -> str:
         return self.rubber.visible_direction.abbreviation() if self.rubber.visible_direction else None
 
+    def dir_to_sid(self, dir: str) -> str:
+        for sid, pdata in self.player_dict.items():
+            if pdata['dir'] == dir:
+                return sid
+
+        return ''
+
+    def get_dummy_controller_sid(self):
+        if not self.rubber or not self.rubber.auction.contract:
+            return None
+
+        declarer = self.rubber.auction.contract.declarer.abbreviation()
+        # Zwracamy SID gracza, który steruje dummy
+        return self.dir_to_sid(declarer)

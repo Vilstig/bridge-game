@@ -40,6 +40,7 @@ class Card:
     def from_str(cls, card_str) -> Card:
         return Card(Suit.from_str(card_str[0]), Rank.from_str(card_str[1]))
 
+CUSTOM_SUIT_ORDER = [Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES]
 
 class PlayerHand:
     """
@@ -50,7 +51,7 @@ class PlayerHand:
         self.suits = suits
         assert 13 == sum([len(ranks) for suit, ranks in self.suits.items()])
         self.cards = []
-        for suit in reversed(Suit):
+        for suit in reversed(CUSTOM_SUIT_ORDER):
             for rank in self.suits[suit]:
                 self.cards.append(Card(suit, rank))
 

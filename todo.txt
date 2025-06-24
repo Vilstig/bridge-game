@@ -1,2 +1,4 @@
 Dodać zmniejszający overlapping dla kart wraz z redukcją ilości kart w rękach (albo przewidziany stały rozmiar okna dla kart, w którym mają się zmieścić)
 Poprawić wyświetlanie trick
+
+pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" --hidden-import=gevent --hidden-import=gevent.monkey --hidden-import=engineio.async_drivers.gevent app_socket.py

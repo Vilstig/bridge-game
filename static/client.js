@@ -77,8 +77,21 @@ socket.on('play_phase', () => {
 let trickDisplayed = false;
 
 socket.on('update_play', data => {
-    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick, vis_dir, contract} = data;
-    document.getElementById('curr-turn-play').innerText = turn;
+    const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick, vis_dir,
+        dummy_controller_sid, current_playing_direction, contract} = data;
+
+    let isMyTurn
+    if (dummy_controller_sid === socket.id && current_playing_direction === vis_dir){
+        isMyTurn = true;
+    }
+    else if (current_playing_direction === vis_dir) {
+        isMyTurn = false
+    }
+    else {
+        isMyTurn = turn;
+    }
+
+    document.getElementById('curr-turn-play').innerText = isMyTurn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
     document.getElementById('tricks-we').innerText = trick_count[1];
     document.getElementById('contract-play').innerText = contract;
@@ -90,11 +103,11 @@ socket.on('update_play', data => {
         setTimeout(() => {
             trickDisplayed = false;
             renderTrick([]);
-            renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0], vis_dir);
+            renderHands('hands-view', direction_hands, legal_hand, isMyTurn, myRole[0], vis_dir);
         }, 1500);
     } else {
         renderTrick(trick);
-        renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0], vis_dir);
+        renderHands('hands-view', direction_hands, legal_hand, isMyTurn, myRole[0], vis_dir);
     }
 });
 
