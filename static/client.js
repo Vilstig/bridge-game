@@ -23,12 +23,12 @@ socket.on('role_assigned', role => {
     lobbyPhase();
 });
 
-socket.on('update_lobby', status => {
+socket.on('update_lobby', players => {
     const list = document.getElementById('player-status');
     list.innerHTML = '';
 
-    for (let player in status.players) {
-        const ready = status.players[player];
+    for (let player in players) {
+        const ready = players[player];
         const li = document.createElement('li');
         li.className = ready ? 'ready' : 'not-ready';
         li.textContent = player;
@@ -64,8 +64,7 @@ socket.on('update_auction', data => {
 });
 
 
-socket.on('player_update_auction', data => {
-    const {hand} = data;
+socket.on('player_update_auction', hand => {
     renderOwnHand('your-auction-hand', hand);
 });
 
@@ -80,9 +79,9 @@ let trickDisplayed = false;
 socket.on('update_play', data => {
     const {turn, trick_count, trick, direction_hands, legal_hand, last_full_trick} = data;
 
-    currentDirectionHands = direction_hands;
-    currentLegalCards = legal_hand;
-    currentIsMyTurn = turn;
+    //currentDirectionHands = direction_hands;
+    //currentLegalCards = legal_hand;
+    //currentIsMyTurn = turn;
 
     document.getElementById('curr-turn-play').innerText = turn;
     document.getElementById('tricks-ns').innerText = trick_count[0];
@@ -95,12 +94,11 @@ socket.on('update_play', data => {
         setTimeout(() => {
             trickDisplayed = false;
             renderTrick([]);
-            renderHands('hands-view', currentDirectionHands, currentLegalCards, currentIsMyTurn, myRole[0]);
         }, 1500);
     } else {
         renderTrick(trick);
-        renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
     }
+    renderHands('hands-view', direction_hands, legal_hand, turn, myRole[0]);
 });
 
 
@@ -118,6 +116,10 @@ socket.on('score_phase', () => switchView('score'));
 
 socket.on('game_finished', () => switchView('game-over'));
 
+socket.on('update_game_over', scores => {
+    document.getElementById('final-score-display').innerText = scores;
+})
+
 function joinGame() {
     const role = document.getElementById('role-dropdown').value;
     socket.emit('choose_role', role);
@@ -133,8 +135,6 @@ function playCard(card) {
     if (trickDisplayed) return;
     socket.emit('play_card', card);
 }
-
-
 
 function endScores() {
     socket.emit('end_scores');
@@ -189,7 +189,6 @@ function renderBidButtons(legalBids) {
         const tr = document.createElement('tr');
         suits.forEach(([suit, symbol]) => {
             const code = `${level}${suit}`;
-            const td = document.createElement('td');
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.innerText = `${level}${symbol}`;
@@ -202,8 +201,7 @@ function renderBidButtons(legalBids) {
             btn.style.borderRadius = '6px';
             if (['H', 'D'].includes(suit)) btn.style.color = 'red';
 
-            td.appendChild(btn);
-            tr.appendChild(td);
+            tr.appendChild(btn);
         });
         table.appendChild(tr);
     }
@@ -248,15 +246,13 @@ function renderHands(containerId, view, legalCards = [], isMyTurn = false, curre
             } else {
                 button.disabled = true;
                 if (isVisible && isMyTurn && !legalCards.includes(card)) {
-                    button.classList.add('dimmed-card'); // dodaj efekt tylko do nielegalnych
+                    button.classList.add('dimmed-card'); // dimming effect on illegal cards
                 }
             }
 
             const img = document.createElement('img');
             img.className = `card rotate-${rotations[dir]}`;
-            img.src = isVisible
-                ? `/static/assets/${card}.png`
-                : '/static/assets/card_back.png';
+            img.src = isVisible ? `/static/assets/${card}.png` : '/static/assets/card_back.png';
 
             button.appendChild(img);
             handDiv.appendChild(button);
@@ -279,8 +275,8 @@ function renderOwnHand(containerId, cards) {
         button.disabled = true;
 
         const img = document.createElement('img');
-        img.className = 'card rotate-0'; // zawsze poziomo
-        img.src = card === '*' ? '/static/assets/card_back.png' : `/static/assets/${card}.png`;
+        img.className = 'card rotate-0'; // always horizontally
+        img.src = `/static/assets/${card}.png`;
 
         button.appendChild(img);
         container.appendChild(button);

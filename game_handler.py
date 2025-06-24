@@ -1,70 +1,62 @@
-from core.deal_enums import GameStatus, Direction
-from game_logic import Game, get_player_by_direction
+from core.deal_enums import GameStatus, Direction, Suit
+from game_logic import Game, Player, get_player_by_direction
 
 class Handler:
     def __init__(self):
         self.rubber = Game()
         self.visible_hand = None
-        self.player_dict = {}  # sid: {dir: ..., ready:..., has_played:...}
+        self.player_dict = {} # sid: {dir: ..., ready:..., has_played:...}
+        #self.spectators = set()
         self.game_running = False
 
     def get_game_status_str(self) -> str:
-        return str(self.rubber.game_status)
+        return self.rubber.game_status.__str__()
 
     def available_dirs(self):
-        return [d.abbreviation() for d in Direction if d not in self.rubber.taken_dirs()]
+        roles = [d.abbreviation() for d in Direction if d not in self.rubber.taken_dirs()]
+        #roles.append('Spectator')
+        return roles
 
     def add_player(self, sid, role: str) -> bool:
+        '''if role == 'Spectator':
+            self.spectators.add(sid)
+            return True'''
         if Direction.from_str(role[0]) in self.rubber.taken_dirs():
             return False
-        player = get_player_by_direction(self.rubber.players, Direction.from_str(role))
-        player.name = 'Prr Prr Patapim'
-        self.player_dict[sid] = {'dir': role[0], 'ready': False, 'has_played': False}
+        else:
+            player = get_player_by_direction(self.rubber.players, Direction.from_str(role))
+            player.name = 'Prr Prr Patapim'
+            self.player_dict[sid] = {'dir': role[0], 'ready': False, 'has_played': False}
         return True
 
     def get_status(self):
         return {
             'players': {p['dir']: p['ready'] for p in self.player_dict.values()},
+            #'spec_count': len(self.spectators),
             'game_running': self.game_running
         }
 
     def get_player_hands(self):
-        return {
-            sid: [str(card) for card in get_player_by_direction(self.rubber.players, Direction.from_str(info['dir'])).hand.cards]
-            for sid, info in self.player_dict.items()
-        }
+        player_ids ={sid: get_player_by_direction(self.rubber.players, Direction.from_str(self.player_dict[sid]['dir'])) for sid in self.player_dict}
+        return {sid: player_ids[sid].hand.__repr__() for sid in player_ids}
 
-    def get_direction_hands(self):
-        return {
-            player.direction.abbreviation(): [str(card) for card in player.hand.cards]
-            for player in self.rubber.players
-        }
-
-    def auction_status(self):
-        rounds, dir_names = self.rubber.get_bidding_history()
-        return {
-            'turn': self.rubber.playing_direction.abbreviation(),
-            'contract': str(self.rubber.auction.contract),
-            'hands': self.get_player_hands(),
-            'bids': self.rubber.get_legal_bids(),
-            'player_turns': self.player_turns(),
-            'direction_hands': self.get_direction_hands(),
-            'bidding_history': [rounds, dir_names],
-        }
+    def auction_status(self, direction=None):
+        return {'turn': self.rubber.playing_direction.abbreviation(),
+                'contract': self.rubber.auction.contract.__str__(),
+                'hands': self.get_player_hands(),
+                'bids': self.rubber.get_legal_bids(),
+                'player_turns': self.player_turns()}
 
     def player_turns(self):
-        return {
-            sid: self.player_dict[sid]['dir'] == self.rubber.playing_direction.abbreviation()
-            for sid in self.player_dict
-        }
+        return {sid: self.player_dict[sid]['dir'] == self.rubber.playing_direction.abbreviation() for sid in self.player_dict}
 
     def toggle_ready(self, sid):
         if sid in self.player_dict:
             self.player_dict[sid]['ready'] = not self.player_dict[sid]['ready']
-            if len(self.player_dict) == 4 and all(p['ready'] for p in self.player_dict.values()):
+            if len(self.player_dict) == 4 and all([p['ready'] for p in self.player_dict.values()]):
                 self.game_running = True
 
-    def remove_player(self, sid) -> bool:
+    def remove_player(self, sid) -> bool: #dummy players in game instead of deleting them, delete from dict in handler
         if sid in self.player_dict:
             player = get_player_by_direction(self.rubber.players, Direction.from_str(self.player_dict[sid]['dir']))
             player.name = ''
@@ -73,10 +65,11 @@ class Handler:
             for p in self.player_dict.values():
                 p['ready'] = False
             return True
+        #self.spectators.discard(sid)
         return False
 
     def deal_cards(self) -> bool:
-        if self.valid_status(GameStatus.DEAL_CARDS):
+        if self.valid_status(GameStatus.DEAL_CARDS): #should this check be deleted? not necessary, probably never useful, redundancy in make_bid
             self.rubber.deal_cards()
             return True
         return False
@@ -88,24 +81,60 @@ class Handler:
         if not self.valid_status(GameStatus.AUCTION) or self.player_dict[sid]['dir'] != self.rubber.playing_direction.abbreviation():
             return False
         self.rubber.bid(bid)
-        if self.valid_status(GameStatus.DEAL_CARDS):
+        if self.valid_status(GameStatus.DEAL_CARDS): #in case of 4 passes in a row at the start
             self.deal_cards()
         return True
 
     def play_status(self):
-        trick = self.rubber.get_current_trick()
+        def trick_str() -> str:
+            trick = self.rubber.get_current_trick()
+            trick_str = ' | '.join([f'{direction.abbreviation()}: {str(card)}' for (direction, card) in trick])
+            return trick_str
+        turn = self.rubber.playing_direction.abbreviation()
+        trick_count = self.rubber.get_tricks_count()
         return {
-            'turn': self.rubber.playing_direction.abbreviation(),
-            'trick_count': self.rubber.get_tricks_count(),
-            'trick': [(d.abbreviation(), str(c)) for d, c in trick],
-            'last_full_trick': [(d.abbreviation(), str(c)) for d, c in self.rubber.play.tricks_log[-1]] if self.rubber.play.tricks_log else [],
-            'direction_hands': self.get_direction_hands()
+            'turn': turn,
+            'trick_count': trick_count,
+            'trick_str': trick_str(),
+            'player_views': self.player_hands_str()['player_views']
         }
 
     def player_hand_update(self):
         return {
-            'legal_hand': [str(card) for card in self.rubber.get_legal_cards_to_play()],
+            'legal_hand': self.rubber.get_legal_cards_to_play(),
             'player_turns': self.player_turns()
+        }
+
+    def player_hands_str(self):
+        player_hands = self.get_player_hands()
+        vis_dir = self.rubber.visible_direction
+        player_views = {}
+        if not vis_dir:
+            for sid in self.player_dict:
+                card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
+                player_views[sid] = card_str
+        else:
+            vis_dir = vis_dir.abbreviation()
+            vis_partner_dir = self.rubber.visible_direction.partner().abbreviation()
+            vis_sid = ''
+            vis_partner_sid = ''
+            for sid in self.player_dict:
+                if self.player_dict[sid]['dir'] == vis_dir:
+                    vis_sid = sid
+                elif self.player_dict[sid]['dir'] == vis_partner_dir:
+                    vis_partner_sid = sid
+
+            for sid in self.player_dict:
+                card_str = f'Visible hands\n{self.player_dict[sid]["dir"]}: {player_hands[sid]}\n'
+                if sid == vis_sid:
+                    card_str += f'{vis_partner_dir}: {player_hands[vis_partner_sid]}'
+                else:
+                    card_str += f'{vis_dir}: {player_hands[vis_sid]}'
+                player_views[sid] = card_str
+
+
+        return{
+            'player_views': player_views
         }
 
     def play_card(self, card: str):
@@ -123,22 +152,4 @@ class Handler:
         self.rubber.deal_cards()
 
     def game_over_status(self):
-        return {'scores': str(self.rubber.get_current_scores())}
-
-    def get_visible_hands_per_sid(self):
-        all_hands = self.get_direction_hands()
-        vis_dir = self.rubber.visible_direction
-        result = {}
-
-        for sid, pdata in self.player_dict.items():
-            my_dir = pdata['dir']
-            visible_dirs = {my_dir}
-            if vis_dir:
-                visible_dirs |= {vis_dir.abbreviation()}
-
-            result[sid] = {
-                d: all_hands[d] if d in visible_dirs else ['*'] * len(all_hands[d])
-                for d in all_hands
-            }
-
-        return result
+        return str(self.rubber.get_current_scores())

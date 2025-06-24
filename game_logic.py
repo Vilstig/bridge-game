@@ -137,7 +137,7 @@ class Game:
 
         for bid_str in self.auction.bid_log:
             col = current_index % 4
-            row[col] = bid_str.split(",")[0]
+            row[col] = bid_str.split(",")[0] #necessary?
             current_index += 1
             if col == 3:
                 rounds.append(row)
